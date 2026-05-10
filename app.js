@@ -227,31 +227,42 @@ function renderFeatured() {
   });
 }
 
-function buildResourceCard(entry) {
+function buildResourceCard(entry, entryIndex) {
   const card = document.createElement('article');
   card.className = 'library-card';
   card.innerHTML = `
     <div class="tag">${entry.year} · ${entry.tags.join(' · ')}</div>
     <h3>${entry.title}</h3>
-    <p>按类型展示真题、听力与解析资源，直接打开或收藏。</p>
     <div class="resource-list"></div>
   `;
   const list = card.querySelector('.resource-list');
 
+  const typeOrder = ['真题', '解析', '听力'];
+  const grouped = {};
   entry.resources.forEach((resource, resourceIndex) => {
-    const item = document.createElement('div');
-    item.className = 'resource-item';
-    item.innerHTML = `
-      <div>
-        <strong>${getIcon(resource.type)} ${resource.name}</strong>
-        <div class="empty-state" style="font-size:0.92rem;">${resource.type}</div>
-      </div>
-      <div class="resource-item-actions">
-        <button type="button" class="button button-secondary open-viewer-button" data-entry-index="${libraryData.indexOf(entry)}" data-resource-index="${resourceIndex}">${getButtonLabel(resource, resourceIndex)}</button>
-        <button type="button" class="favorite-button" data-path="${resource.path}">${favorites[resource.path] ? '★ 收藏' : '☆ 收藏'}</button>
-      </div>
-    `;
-    list.appendChild(item);
+    if (!grouped[resource.type]) grouped[resource.type] = [];
+    grouped[resource.type].push({ resource, resourceIndex });
+  });
+
+  typeOrder.forEach(type => {
+    const items = grouped[type];
+    if (!items || items.length === 0) return;
+    const section = document.createElement('div');
+    section.className = 'resource-group';
+    section.innerHTML = `<div class="resource-group-title">${getIcon(type)} ${type}</div>`;
+    items.forEach(({ resource, resourceIndex }) => {
+      const item = document.createElement('div');
+      item.className = 'resource-item';
+      item.innerHTML = `
+        <span class="resource-name">${stripExtension(resource.name)}</span>
+        <div class="resource-item-actions">
+          <button type="button" class="button button-secondary open-viewer-button" data-entry-index="${entryIndex}" data-resource-index="${resourceIndex}">${getButtonLabel(resource, resourceIndex)}</button>
+          <button type="button" class="favorite-button" data-path="${resource.path}">${favorites[resource.path] ? '★' : '☆'}</button>
+        </div>
+      `;
+      section.appendChild(item);
+    });
+    list.appendChild(section);
   });
 
   return card;
@@ -272,7 +283,10 @@ function renderLibrary(filter = '') {
     resourceLibrary.innerHTML = '<p class="empty-state">未找到匹配资源，请尝试其他关键词。</p>';
     return;
   }
-  filtered.forEach(entry => resourceLibrary.appendChild(buildResourceCard(entry)));
+  filtered.forEach(entry => {
+    const idx = libraryData.indexOf(entry);
+    resourceLibrary.appendChild(buildResourceCard(entry, idx));
+  });
 }
 
 function renderRecent() {
