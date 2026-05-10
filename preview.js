@@ -92,6 +92,26 @@ function showMessage(message) {
   }
 }
 
+function isMobile() {
+  return /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) || window.innerWidth < 768;
+}
+
+function showMobilePdfFallback(iframeId, resource, label) {
+  const iframe = document.getElementById(iframeId);
+  if (!iframe || !resource) return;
+  const panel = iframe.closest('.preview-panel');
+  if (!panel) return;
+  iframe.style.display = 'none';
+  const fallback = document.createElement('div');
+  fallback.className = 'mobile-pdf-fallback';
+  fallback.innerHTML = `
+    <div class="mobile-pdf-icon">📄</div>
+    <p class="mobile-pdf-name">${resource.name}</p>
+    <a class="button button-primary mobile-pdf-open" href="${wrapPath(resource.path)}" target="_blank" rel="noopener">${label || '打开 PDF'}</a>
+  `;
+  panel.appendChild(fallback);
+}
+
 function isAudioPath(path = '') {
   return /\.(mp3|m4a|wav|aac)$/i.test(path);
 }
@@ -200,7 +220,12 @@ function loadPreview() {
   const groupTitle = formatShortcutGroupTitle(entry);
   document.getElementById('previewTitle').textContent = `${groupTitle}CET6真题·${setLabel || '听力资源'}`;
   document.getElementById('previewSubtitle').textContent = '左侧是真题原文，右侧展示解析，附带本套听力资源。';
-  document.getElementById('mainPdf').src = wrapPath(questionResource.path);
+  const mobile = isMobile();
+  if (mobile) {
+    showMobilePdfFallback('mainPdf', questionResource, '打开真题 PDF');
+  } else {
+    document.getElementById('mainPdf').src = wrapPath(questionResource.path);
+  }
   const parseColumn = document.querySelector('.preview-column.preview-parse');
   const parsePanel = parseColumn ? parseColumn.querySelector('.preview-panel') : null;
   if (parseColumn) {
@@ -208,7 +233,11 @@ function loadPreview() {
   }
   if (parseResource && parsePanel) {
     parsePanel.style.display = '';
-    document.getElementById('parsePdf').src = wrapPath(parseResource.path);
+    if (mobile) {
+      showMobilePdfFallback('parsePdf', parseResource, '打开解析 PDF');
+    } else {
+      document.getElementById('parsePdf').src = wrapPath(parseResource.path);
+    }
   } else if (parsePanel && parseColumn) {
     parsePanel.style.display = 'none';
     parseColumn.classList.add('no-parse');

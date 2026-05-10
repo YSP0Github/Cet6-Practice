@@ -1174,6 +1174,33 @@ body.preview-no-parse .preview-grid {
   }
 }
 
+/* Mobile PDF fallback */
+.mobile-pdf-fallback {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 40px 20px;
+  min-height: 300px;
+  text-align: center;
+}
+.mobile-pdf-icon {
+  font-size: 3rem;
+  opacity: 0.6;
+}
+.mobile-pdf-name {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin: 0;
+  word-break: break-all;
+}
+.mobile-pdf-open {
+  text-decoration: none;
+  padding: 12px 28px;
+  font-size: 1rem;
+}
+
 /* Utility classes */
 .empty-state {
   color: var(--muted);
