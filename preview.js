@@ -98,21 +98,49 @@ function isMobile() {
 
 function initPdfJsWorker() {
   if (typeof pdfjsLib !== 'undefined') {
-    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.bootcdn.net/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
   }
 }
 
+function showPdfLoading(viewer, fileName) {
+  if (!viewer) return;
+  viewer.innerHTML = `
+    <div class="mobile-pdf-loading">
+      <div class="mobile-pdf-spinner"></div>
+      <p>正在加载 ${fileName || 'PDF'}...</p>
+      <p class="mobile-pdf-loading-hint">文件较大时需要等待片刻</p>
+    </div>
+  `;
+}
+
+function showPdfError(viewer, fileName, pdfUrl) {
+  if (!viewer) return;
+  viewer.innerHTML = `
+    <div class="mobile-pdf-fallback">
+      <div class="mobile-pdf-icon">📄</div>
+      <p class="mobile-pdf-name">${fileName || 'PDF'}</p>
+      <p style="color:var(--muted);font-size:0.85rem;margin:0 0 12px;">加载失败，请检查网络后重试</p>
+      <a class="button button-primary mobile-pdf-open" href="${wrapPath(pdfUrl)}" target="_blank" rel="noopener">在新页面打开</a>
+    </div>
+  `;
+}
+
 async function renderPdfToCanvas(canvasId, pdfUrl) {
-  if (typeof pdfjsLib === 'undefined') return;
+  if (typeof pdfjsLib === 'undefined') {
+    const viewer = document.getElementById(canvasId).closest('.mobile-pdf-viewer');
+    showPdfError(viewer, pdfUrl.split('/').pop(), pdfUrl);
+    return;
+  }
   const canvas = document.getElementById(canvasId);
   if (!canvas) return;
-  const ctx = canvas.getContext('2d');
+  const viewer = canvas.closest('.mobile-pdf-viewer');
+  const fileName = pdfUrl.split('/').pop();
+  showPdfLoading(viewer, fileName);
   try {
     const loadingTask = pdfjsLib.getDocument(wrapPath(pdfUrl));
     const pdf = await loadingTask.promise;
-    const container = canvas.parentElement;
-    const containerWidth = container ? container.clientWidth : window.innerWidth;
-    const maxWidth = Math.min(containerWidth - 20, 800);
+    const containerWidth = viewer ? viewer.clientWidth : window.innerWidth;
+    const maxWidth = Math.min(containerWidth - 24, 800);
     const allPages = [];
     for (let i = 1; i <= pdf.numPages; i++) {
       const page = await pdf.getPage(i);
@@ -126,6 +154,7 @@ async function renderPdfToCanvas(canvasId, pdfUrl) {
     canvas.height = totalHeight;
     canvas.style.width = maxWidth + 'px';
     canvas.style.height = totalHeight + 'px';
+    const ctx = canvas.getContext('2d');
     let y = 0;
     for (const { page, height } of allPages) {
       const viewport = page.getViewport({ scale: maxWidth / page.getViewport({ scale: 1 }).width });
@@ -137,19 +166,14 @@ async function renderPdfToCanvas(canvasId, pdfUrl) {
       ctx.drawImage(tempCanvas, 0, y, viewport.width, viewport.height);
       y += height;
     }
+    if (viewer) {
+      viewer.innerHTML = '';
+      viewer.appendChild(canvas);
+    }
     canvas.dataset.loaded = 'true';
   } catch (err) {
     console.error('PDF render failed:', err);
-    const viewer = canvas.closest('.mobile-pdf-viewer');
-    if (viewer) {
-      viewer.innerHTML = `
-        <div class="mobile-pdf-fallback">
-          <div class="mobile-pdf-icon">📄</div>
-          <p class="mobile-pdf-name">${pdfUrl.split('/').pop()}</p>
-          <a class="button button-primary mobile-pdf-open" href="${wrapPath(pdfUrl)}" target="_blank" rel="noopener">打开 PDF</a>
-        </div>
-      `;
-    }
+    showPdfError(viewer, fileName, pdfUrl);
   }
 }
 
