@@ -4,6 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>大学英语六级真题练习系统</title>
+  <meta name="description" content="2015-2025年大学英语六级真题练习系统，包含真题PDF、解析、听力音频和错题笔记，一站式备考工具。" />
+  <meta name="theme-color" content="#071421" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📘</text></svg>" />
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
@@ -16,7 +19,7 @@
       </div>
       <div class="header-actions">
         <a class="button button-primary" href="#latest">开始练习</a>
-        <button class="button button-secondary" id="toggleImmersive" target="_blank">沉浸模式</button>
+        <button class="button button-secondary" id="toggleImmersive">沉浸模式</button>
       </div>
     </header>
 
@@ -29,17 +32,17 @@
 
     <section class="feature-panels">
       <article class="feature-card">
-        <div class="feature-icon">📘</div>
+        <div class="feature-icon" role="img" aria-label="书本">📘</div>
         <h2>结构化资源</h2>
         <p>按年份与套题整理真题、解析、听力，摆脱零散文件夹，一次点击立刻定位。</p>
       </article>
       <article class="feature-card">
-        <div class="feature-icon">🎧</div>
+        <div class="feature-icon" role="img" aria-label="耳机">🎧</div>
         <h2>听力同步</h2>
         <p>内置简洁播放器，支持本地 MP3 直接播放，随套题自动切换到对应音频。</p>
       </article>
       <article class="feature-card">
-        <div class="feature-icon">📝</div>
+        <div class="feature-icon" role="img" aria-label="笔记">📝</div>
         <h2>错题笔记</h2>
         <p>页面本地保存练习记录，刷新后仍在，适合记录易错点与复习计划。</p>
       </article>
@@ -62,7 +65,7 @@
           <h2>真题资源一览</h2>
         </div>
         <div class="search-box">
-          <input id="searchInput" type="search" placeholder="搜索年份、听力、解析或套题..." />
+          <input id="searchInput" type="search" placeholder="搜索年份、听力、解析或套题..." aria-label="搜索真题资源" />
         </div>
       </div>
       <div class="library-toolbar">
@@ -97,14 +100,15 @@
         <div class="panel-card notes-panel">
           <div class="notes-header">
             <div>
-              <h3>错题笔记</h3>
+              <h3 id="notesLabel">错题笔记</h3>
               <p>本地保存你的复习计划与易错点，随时追加或修改。</p>
             </div>
           </div>
-          <textarea id="notesArea" placeholder="记录你的错题、听力感受或复习计划..."></textarea>
+          <textarea id="notesArea" aria-labelledby="notesLabel" placeholder="记录你的错题、听力感受或复习计划..."></textarea>
           <div class="note-actions">
             <button class="button button-primary button-small" id="saveNotes">保存笔记</button>
             <button class="button button-secondary button-small" id="clearNotes">清空笔记</button>
+            <span id="saveStatus" class="visually-hidden" aria-live="polite"></span>
           </div>
           <div class="plan-box">
             <h4>今日打卡</h4>

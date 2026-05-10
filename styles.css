@@ -472,7 +472,7 @@ body {
 .viewer-right {
   display: flex;
   flex-direction: column;
-  min-height: 640px;
+  min-height: 720px;
 }
 .viewer-panel {
   display: grid;
@@ -521,11 +521,6 @@ body {
   font-size: 0.95rem;
   border-top: 1px solid rgba(255,255,255,0.08);
 }
-.viewer-panel {
-  display: grid;
-  gap: 18px;
-  padding: 22px;
-}
 .viewer-panel h3 {
   margin: 0;
   font-size: 1.15rem;
@@ -569,9 +564,6 @@ body {
 }
 .viewer-audio-card audio {
   width: 100%;
-}
-.viewer-right {
-  min-height: 720px;
 }
 .practice-grid {
   display: grid;
@@ -854,11 +846,10 @@ body[data-preview-layout="split-55"] .preview-grid {
   background: rgba(8, 20, 34, 0.82);
   border: 1px solid rgba(255,255,255,0.08);
   height: 30px;
-  display: flex;
   align-items: center;
 }
 .preview-audio-bar.has-content {
-  display: block;
+  display: flex;
 }
 .preview-audio-bar audio {
   width: 100%;
@@ -1022,9 +1013,6 @@ body.preview-no-parse .preview-grid {
   }
 }
 
-.tip-card p {
-  margin: 0;
-}
 .footer {
   margin-top: 30px;
   padding: 18px 20px;
@@ -1091,6 +1079,31 @@ body.preview-no-parse .preview-grid {
   }
   #pdfViewer {
     min-height: 420px;
+  }
+}
+
+/* Utility classes */
+.empty-state {
+  color: var(--muted);
+}
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Respect reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }
 

@@ -149,8 +149,6 @@ const planItems = document.getElementById('planItems');
 const toggleImmersiveButton = document.getElementById('toggleImmersive');
 
 let favorites = JSON.parse(localStorage.getItem('cet6Favorites') || '{}');
-let activeEntry = null;
-let activePdfResource = null;
 let recentResources = JSON.parse(localStorage.getItem('cet6Recent') || '[]');
 let currentFilter = '';
 
@@ -159,11 +157,11 @@ function encodePath(path) {
 }
 
 function saveFavorites() {
-  localStorage.setItem('cet6Favorites', JSON.stringify(favorites));
+  try { localStorage.setItem('cet6Favorites', JSON.stringify(favorites)); } catch (e) { /* quota exceeded */ }
 }
 
 function saveRecent() {
-  localStorage.setItem('cet6Recent', JSON.stringify(recentResources));
+  try { localStorage.setItem('cet6Recent', JSON.stringify(recentResources)); } catch (e) { /* quota exceeded */ }
 }
 
 function logRecent(resource) {
@@ -199,7 +197,7 @@ function renderFeatured() {
   featuredCards.innerHTML = '';
   const latestEntries = getLatestEntries();
   if (latestEntries.length === 0) {
-    featuredCards.innerHTML = '<p style="color: var(--muted);">尚未发现本地真题资源，请先运行 generate_manifest.py。</p>';
+    featuredCards.innerHTML = '<p class="empty-state">尚未发现本地真题资源，请先运行 generate_manifest.py。</p>';
     return;
   }
   latestEntries.forEach(({ entry, entryIndex }) => {
@@ -216,7 +214,7 @@ function renderFeatured() {
     const primary = document.createElement('div');
     primary.className = 'actions-primary';
     if (questions.length === 0) {
-      primary.innerHTML = '<span style="color: var(--muted); font-size: 0.9rem;">该目录暂无真题 PDF</span>';
+      primary.innerHTML = '<span class="empty-state" style="font-size: 0.9rem;">该目录暂无真题 PDF</span>';
     } else {
       primary.innerHTML = questions.slice(0, 3).map((item, idx) => `
         <button type="button" class="button button-secondary open-viewer-button" data-entry-index="${entryIndex}" data-resource-index="${item.index}">
@@ -246,7 +244,7 @@ function buildResourceCard(entry) {
     item.innerHTML = `
       <div>
         <strong>${getIcon(resource.type)} ${resource.name}</strong>
-        <div style="color: var(--muted); font-size:0.92rem;">${resource.type}</div>
+        <div class="empty-state" style="font-size:0.92rem;">${resource.type}</div>
       </div>
       <div class="resource-item-actions">
         <button type="button" class="button button-secondary open-viewer-button" data-entry-index="${libraryData.indexOf(entry)}" data-resource-index="${resourceIndex}">${getButtonLabel(resource, resourceIndex)}</button>
@@ -271,7 +269,7 @@ function renderLibrary(filter = '') {
   });
   resourceLibrary.innerHTML = '';
   if (filtered.length === 0) {
-    resourceLibrary.innerHTML = '<p style="color: var(--muted);">未找到匹配资源，请尝试其他关键词。</p>';
+    resourceLibrary.innerHTML = '<p class="empty-state">未找到匹配资源，请尝试其他关键词。</p>';
     return;
   }
   filtered.forEach(entry => resourceLibrary.appendChild(buildResourceCard(entry)));
@@ -280,7 +278,7 @@ function renderLibrary(filter = '') {
 function renderRecent() {
   recentList.innerHTML = '';
   if (recentResources.length === 0) {
-    recentList.innerHTML = '<li style="color: var(--muted);">暂无最近访问</li>';
+    recentList.innerHTML = '<li class="empty-state">暂无最近访问</li>';
     return;
   }
   recentResources.forEach(resource => {
@@ -329,9 +327,14 @@ function loadNotes() {
 }
 
 function saveNotes() {
-  localStorage.setItem('cet6Notes', notesArea.value);
+  try { localStorage.setItem('cet6Notes', notesArea.value); } catch (e) { /* quota exceeded */ }
   saveNotesButton.textContent = '已保存';
-  setTimeout(() => { saveNotesButton.textContent = '保存笔记'; }, 1200);
+  const status = document.getElementById('saveStatus');
+  if (status) status.textContent = '笔记已保存';
+  setTimeout(() => {
+    saveNotesButton.textContent = '保存笔记';
+    if (status) status.textContent = '';
+  }, 1200);
 }
 
 function clearNotes() {
@@ -362,14 +365,12 @@ function updatePlan(event) {
   }
 }
 
-function toggleImmersiveMode() {
-  document.body.classList.toggle('immersive');
-  const active = document.body.classList.contains('immersive');
-  toggleImmersiveButton.textContent = active ? '退出沉浸' : '沉浸模式';
-}
-
 function setupEventListeners() {
-  searchInput.addEventListener('input', () => renderLibrary(searchInput.value));
+  let debounceTimer;
+  searchInput.addEventListener('input', () => {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => renderLibrary(searchInput.value), 200);
+  });
   saveNotesButton.addEventListener('click', saveNotes);
   clearNotesButton.addEventListener('click', clearNotes);
   planItems.addEventListener('change', updatePlan);

@@ -169,6 +169,10 @@ function renderYearShortcuts(currentEntryIndex, currentEntry, questionResource) 
 }
 
 function loadPreview() {
+  if (!Array.isArray(window.libraryData)) {
+    showMessage('数据文件加载失败，请刷新页面重试。');
+    return;
+  }
   const params = getQueryParams();
   const entryIndex = Number.isFinite(params.entryIndex) ? params.entryIndex : NaN;
   const resourceIndex = Number.isFinite(params.resourceIndex) ? params.resourceIndex : NaN;
@@ -220,7 +224,7 @@ function setSplitPercent(value, persist = true) {
   splitPercent = clamped;
   document.body.style.setProperty('--preview-main-width', `${clamped}%`);
   if (persist) {
-    localStorage.setItem(SPLIT_STORAGE_KEY, String(clamped));
+    try { localStorage.setItem(SPLIT_STORAGE_KEY, String(clamped)); } catch (e) { /* quota exceeded */ }
   }
 }
 
@@ -230,7 +234,8 @@ function initSplitResizer() {
   if (!resizerElement || !grid) {
     return;
   }
-  const storedSplit = Number(localStorage.getItem(SPLIT_STORAGE_KEY));
+  let storedSplit = NaN;
+  try { storedSplit = Number(localStorage.getItem(SPLIT_STORAGE_KEY)); } catch (e) { /* private browsing */ }
   if (Number.isFinite(storedSplit)) {
     setSplitPercent(storedSplit, false);
   } else {
@@ -306,7 +311,7 @@ function initParseToggle() {
       return;
     }
     const hidden = document.body.classList.toggle('preview-parse-hidden');
-    localStorage.setItem(PARSE_VISIBILITY_KEY, hidden ? '1' : '0');
+    try { localStorage.setItem(PARSE_VISIBILITY_KEY, hidden ? '1' : '0'); } catch (e) { /* quota exceeded */ }
     updateParseToggleLabel(hidden);
   });
 }
@@ -348,7 +353,8 @@ function syncParseToggleState(hasParse) {
   if (resizerElement) {
     resizerElement.removeAttribute('aria-hidden');
   }
-  const storedHidden = localStorage.getItem(PARSE_VISIBILITY_KEY) === '1';
+  let storedHidden = false;
+  try { storedHidden = localStorage.getItem(PARSE_VISIBILITY_KEY) === '1'; } catch (e) { /* private browsing */ }
   document.body.classList.toggle('preview-parse-hidden', storedHidden);
   updateParseToggleLabel(storedHidden);
 }
