@@ -50,11 +50,36 @@
     </section>
   </main>
 
+  <div id="mobileTabs" class="mobile-tabs" style="display:none;">
+    <div class="mobile-tab-bar">
+      <button type="button" class="mobile-tab active" data-tab="audio">听力</button>
+      <button type="button" class="mobile-tab" data-tab="exam">真题</button>
+      <button type="button" class="mobile-tab" data-tab="parse">解析</button>
+    </div>
+    <div class="mobile-tab-content" id="mobileTabAudio">
+      <div id="mobileAudioBar" class="mobile-audio-bar">
+        <audio id="mobileAudioPlayer" controls preload="none"></audio>
+      </div>
+      <p class="empty-state" style="padding:40px 20px;text-align:center;">本套暂无听力资源</p>
+    </div>
+    <div class="mobile-tab-content" id="mobileTabExam" style="display:none;">
+      <div class="mobile-pdf-viewer" id="mobileExamViewer">
+        <canvas id="mobileExamCanvas"></canvas>
+      </div>
+    </div>
+    <div class="mobile-tab-content" id="mobileTabParse" style="display:none;">
+      <div class="mobile-pdf-viewer" id="mobileParseViewer">
+        <canvas id="mobileParseCanvas"></canvas>
+      </div>
+    </div>
+  </div>
+
   <footer class="preview-footer">
     <p id="previewNote">如果浏览器无法直接加载本地 PDF，请使用 Edge、Firefox 或将 PDF 另存后再打开。</p>
   </footer>
 
   <script src="library-data.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <script src="preview.js"></script>
 </body>
 </html>

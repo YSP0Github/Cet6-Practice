@@ -96,20 +96,77 @@ function isMobile() {
   return /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) || window.innerWidth < 768;
 }
 
-function showMobilePdfFallback(iframeId, resource, label) {
-  const iframe = document.getElementById(iframeId);
-  if (!iframe || !resource) return;
-  const panel = iframe.closest('.preview-panel');
-  if (!panel) return;
-  iframe.style.display = 'none';
-  const fallback = document.createElement('div');
-  fallback.className = 'mobile-pdf-fallback';
-  fallback.innerHTML = `
-    <div class="mobile-pdf-icon">📄</div>
-    <p class="mobile-pdf-name">${resource.name}</p>
-    <a class="button button-primary mobile-pdf-open" href="${wrapPath(resource.path)}" target="_blank" rel="noopener">${label || '打开 PDF'}</a>
-  `;
-  panel.appendChild(fallback);
+function initPdfJsWorker() {
+  if (typeof pdfjsLib !== 'undefined') {
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  }
+}
+
+async function renderPdfToCanvas(canvasId, pdfUrl) {
+  if (typeof pdfjsLib === 'undefined') return;
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  try {
+    const loadingTask = pdfjsLib.getDocument(wrapPath(pdfUrl));
+    const pdf = await loadingTask.promise;
+    const container = canvas.parentElement;
+    const containerWidth = container ? container.clientWidth : window.innerWidth;
+    const maxWidth = Math.min(containerWidth - 20, 800);
+    const allPages = [];
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i);
+      const viewport = page.getViewport({ scale: 1 });
+      const scale = maxWidth / viewport.width;
+      const scaledViewport = page.getViewport({ scale });
+      allPages.push({ page, height: scaledViewport.height });
+    }
+    const totalHeight = allPages.reduce((sum, p) => sum + p.height, 0);
+    canvas.width = maxWidth;
+    canvas.height = totalHeight;
+    canvas.style.width = maxWidth + 'px';
+    canvas.style.height = totalHeight + 'px';
+    let y = 0;
+    for (const { page, height } of allPages) {
+      const viewport = page.getViewport({ scale: maxWidth / page.getViewport({ scale: 1 }).width });
+      const tempCanvas = document.createElement('canvas');
+      tempCanvas.width = viewport.width;
+      tempCanvas.height = viewport.height;
+      const tempCtx = tempCanvas.getContext('2d');
+      await page.render({ canvasContext: tempCtx, viewport }).promise;
+      ctx.drawImage(tempCanvas, 0, y, viewport.width, viewport.height);
+      y += height;
+    }
+    canvas.dataset.loaded = 'true';
+  } catch (err) {
+    console.error('PDF render failed:', err);
+    const viewer = canvas.closest('.mobile-pdf-viewer');
+    if (viewer) {
+      viewer.innerHTML = `
+        <div class="mobile-pdf-fallback">
+          <div class="mobile-pdf-icon">📄</div>
+          <p class="mobile-pdf-name">${pdfUrl.split('/').pop()}</p>
+          <a class="button button-primary mobile-pdf-open" href="${wrapPath(pdfUrl)}" target="_blank" rel="noopener">打开 PDF</a>
+        </div>
+      `;
+    }
+  }
+}
+
+function initMobileTabs() {
+  const tabBar = document.querySelector('.mobile-tab-bar');
+  if (!tabBar) return;
+  tabBar.addEventListener('click', event => {
+    const tab = event.target.closest('.mobile-tab');
+    if (!tab) return;
+    const targetId = tab.dataset.tab;
+    document.querySelectorAll('.mobile-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    document.querySelectorAll('.mobile-tab-content').forEach(c => c.style.display = 'none');
+    const targetMap = { audio: 'mobileTabAudio', exam: 'mobileTabExam', parse: 'mobileTabParse' };
+    const target = document.getElementById(targetMap[targetId]);
+    if (target) target.style.display = '';
+  });
 }
 
 function isAudioPath(path = '') {
@@ -222,10 +279,31 @@ function loadPreview() {
   document.getElementById('previewSubtitle').textContent = '左侧是真题原文，右侧展示解析，附带本套听力资源。';
   const mobile = isMobile();
   if (mobile) {
-    showMobilePdfFallback('mainPdf', questionResource, '打开真题 PDF');
-  } else {
-    document.getElementById('mainPdf').src = wrapPath(questionResource.path);
+    document.querySelector('.preview-grid').style.display = 'none';
+    document.getElementById('mobileTabs').style.display = '';
+    initPdfJsWorker();
+    renderPdfToCanvas('mobileExamCanvas', questionResource.path);
+    if (parseResource) {
+      renderPdfToCanvas('mobileParseCanvas', parseResource.path);
+    } else {
+      document.getElementById('mobileTabParse').innerHTML = '<p class="empty-state" style="padding:40px 20px;text-align:center;">本套暂无解析资源</p>';
+    }
+    const mobileAudioPlayer = document.getElementById('mobileAudioPlayer');
+    if (mobileAudioPlayer) {
+      const allAudio = entry.resources.filter(r => r.type === '听力' && isAudioPath(r.path || ''));
+      const matched = setLabel ? allAudio.filter(r => r.name.includes(setLabel)) : [];
+      const audioResources = matched.length ? matched : (setLabel ? (allAudio.length ? [allAudio[0]] : []) : allAudio);
+      if (audioResources.length > 0) {
+        mobileAudioPlayer.src = wrapPath(audioResources[0].path);
+        mobileAudioPlayer.load();
+        document.querySelector('#mobileTabAudio .empty-state').style.display = 'none';
+      }
+    }
+    initMobileTabs();
+    renderYearShortcuts(entryIndex, entry, questionResource);
+    return;
   }
+  document.getElementById('mainPdf').src = wrapPath(questionResource.path);
   const parseColumn = document.querySelector('.preview-column.preview-parse');
   const parsePanel = parseColumn ? parseColumn.querySelector('.preview-panel') : null;
   if (parseColumn) {
@@ -233,11 +311,7 @@ function loadPreview() {
   }
   if (parseResource && parsePanel) {
     parsePanel.style.display = '';
-    if (mobile) {
-      showMobilePdfFallback('parsePdf', parseResource, '打开解析 PDF');
-    } else {
-      document.getElementById('parsePdf').src = wrapPath(parseResource.path);
-    }
+    document.getElementById('parsePdf').src = wrapPath(parseResource.path);
   } else if (parsePanel && parseColumn) {
     parsePanel.style.display = 'none';
     parseColumn.classList.add('no-parse');
