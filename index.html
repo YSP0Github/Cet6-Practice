@@ -1,0 +1,219 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>大学英语六级真题练习系统</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="site-header">
+      <div>
+        <p class="eyebrow">真题练习 · 本地资源</p>
+        <h1>大学英语六级真题练习系统</h1>
+        <p>把真题、听力、解析与错题记录集中到一个界面，减少切换次数，保持沉浸式复习节奏。</p>
+      </div>
+      <div class="header-actions">
+        <a class="button button-primary" href="#latest">开始练习</a>
+        <button class="button button-secondary" id="toggleImmersive" target="_blank">沉浸模式</button>
+      </div>
+    </header>
+
+    <nav class="home-nav-links" aria-label="首页快速导航">
+      <a class="nav-link" href="#library">资源库</a>
+      <a class="nav-link" href="#practice">练习工具</a>
+      <a class="nav-link" href="#skilltips">常用技巧</a>
+      <a class="nav-link" href="#tips">进阶建议</a>
+    </nav>
+
+    <section class="feature-panels">
+      <article class="feature-card">
+        <div class="feature-icon">📘</div>
+        <h2>结构化资源</h2>
+        <p>按年份与套题整理真题、解析、听力，摆脱零散文件夹，一次点击立刻定位。</p>
+      </article>
+      <article class="feature-card">
+        <div class="feature-icon">🎧</div>
+        <h2>听力同步</h2>
+        <p>内置简洁播放器，支持本地 MP3 直接播放，随套题自动切换到对应音频。</p>
+      </article>
+      <article class="feature-card">
+        <div class="feature-icon">📝</div>
+        <h2>错题笔记</h2>
+        <p>页面本地保存练习记录，刷新后仍在，适合记录易错点与复习计划。</p>
+      </article>
+    </section>
+
+    <section id="latest" class="section latest-section">
+      <div class="section-title">
+        <div>
+          <p class="section-label">推荐入口</p>
+          <h2>最新套题</h2>
+        </div>
+      </div>
+      <div id="featuredCards" class="card-grid"></div>
+    </section>
+
+    <section id="library" class="section library-section">
+      <div class="library-header">
+        <div>
+          <p class="section-label">资源库</p>
+          <h2>真题资源一览</h2>
+        </div>
+        <div class="search-box">
+          <input id="searchInput" type="search" placeholder="搜索年份、听力、解析或套题..." />
+        </div>
+      </div>
+      <div class="library-toolbar">
+        <div class="recent-panel">
+          <h3>最近访问</h3>
+          <ul id="recentList"></ul>
+        </div>
+        <div class="hint-panel">
+          <p>点击“查看第 N 套”会在新标签页打开预览。主页面仅作为资源入口，沉浸模式也会在新页面展示左右分屏。</p>
+        </div>
+      </div>
+      <div id="resourceLibrary" class="library-grid"></div>
+    </section>
+
+    <section id="practice" class="section practice-section">
+      <div class="section-title">
+        <div>
+          <p class="section-label">练习工具</p>
+          <h2>听力与笔记</h2>
+        </div>
+      </div>
+      <div class="practice-grid">
+        <div class="panel-card audio-panel">
+          <div class="panel-header">
+            <div>
+              <h3>听力资源</h3>
+              <p>选择套题后，这里自动展示对应听力音频，也可以直接播放本地文件。</p>
+            </div>
+          </div>
+          <div id="audioList" class="audio-list"></div>
+        </div>
+        <div class="panel-card notes-panel">
+          <div class="notes-header">
+            <div>
+              <h3>错题笔记</h3>
+              <p>本地保存你的复习计划与易错点，随时追加或修改。</p>
+            </div>
+          </div>
+          <textarea id="notesArea" placeholder="记录你的错题、听力感受或复习计划..."></textarea>
+          <div class="note-actions">
+            <button class="button button-primary button-small" id="saveNotes">保存笔记</button>
+            <button class="button button-secondary button-small" id="clearNotes">清空笔记</button>
+          </div>
+          <div class="plan-box">
+            <h4>今日打卡</h4>
+            <ul id="planItems" class="plan-items"></ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="skilltips" class="section skilltips-section">
+      <div class="section-title">
+        <div>
+          <p class="section-label">常用技巧</p>
+          <h2>四六级备考核心方法</h2>
+        </div>
+      </div>
+      <div class="skilltips-nav">
+        <a class="skillnav-link" href="#skill-audio">听力技巧</a>
+        <a class="skillnav-link" href="#skill-reading">阅读技巧</a>
+        <a class="skillnav-link" href="#skill-writing">写作模板</a>
+        <a class="skillnav-link" href="#skill-memory">词汇记忆</a>
+      </div>
+      <div class="skilltips-accordion">
+        <details id="skill-audio" open>
+          <summary>听力答题技巧</summary>
+          <p>先看题目和选项，预测答案类型；听力第一遍抓主旨，第二遍确认细节，第三遍检查关键词。</p>
+          <p>推荐资料：</p>
+          <ul class="resource-links">
+            <li><a href="resources/英语六级听力技巧.pdf" target="_blank" rel="noreferrer">英语六级听力技巧</a></li>
+            <li><a href="resources/【原创】学渣必备四六级十大锦囊听力卷.pdf" target="_blank" rel="noreferrer">【原创】学渣必备四六级十大锦囊听力卷</a></li>
+            <li><a href="resources/【原创】四六级必备临场十大锦囊.pdf" target="_blank" rel="noreferrer">【原创】四六级必备临场十大锦囊</a></li>
+          </ul>
+        </details>
+        <details id="skill-reading">
+          <summary>阅读快速定位</summary>
+          <p>使用关键词扫读、把握段落主题句与作者态度，遇到细节题先定位再比选。</p>
+          <p>推荐资料：</p>
+          <ul class="resource-links">
+            <li><a href="resources/英语四六级阅读的方法.doc" target="_blank" rel="noreferrer">英语四六级阅读的方法</a></li>
+            <li><a href="resources/英语四六级阅读干货.pdf" target="_blank" rel="noreferrer">英语四六级阅读干货</a></li>
+            <li><a href="resources/英语四六级五大阅读题型介绍技巧.docx" target="_blank" rel="noreferrer">英语四六级五大阅读题型介绍技巧</a></li>
+            <li><a href="resources/英语四六级阅读必备锦囊.docx" target="_blank" rel="noreferrer">英语四六级阅读必备锦囊</a></li>
+            <li><a href="resources/英语四六级阅读快速解题技巧.docx" target="_blank" rel="noreferrer">英语四六级阅读快速解题技巧</a></li>
+            <li><a href="resources/英语四六级阅读满分技巧.docx" target="_blank" rel="noreferrer">英语四六级阅读满分技巧</a></li>
+            <li><a href="resources/【考试阅读理解技巧】六级.pdf" target="_blank" rel="noreferrer">【考试阅读理解技巧】六级</a></li>
+            <li><a href="resources/四六级阅读必备锦囊.docx" target="_blank" rel="noreferrer">四六级阅读必备锦囊</a></li>
+          </ul>
+        </details>
+        <details id="skill-writing">
+          <summary>写作翻译模板</summary>
+          <p>掌握开头-论证-结尾结构，使用常用连接词和固定表达，翻译时先理解句意再用简洁英文表达。</p>
+          <p>推荐资料：</p>
+          <ul class="resource-links">
+            <li><a href="resources/英语六级作文写作技巧.pdf" target="_blank" rel="noreferrer">英语六级作文写作技巧</a></li>
+            <li><a href="resources/英语六级作文常考题型模板.pdf" target="_blank" rel="noreferrer">英语六级作文常考题型模板</a></li>
+            <li><a href="resources/英语六级作文内容分类模板.pdf" target="_blank" rel="noreferrer">英语六级作文内容分类模板</a></li>
+            <li><a href="resources/英语六级作文加分句型.pdf" target="_blank" rel="noreferrer">英语六级作文加分句型</a></li>
+            <li><a href="resources/英语六级作文常用100句.pdf" target="_blank" rel="noreferrer">英语六级作文常用100句</a></li>
+            <li><a href="resources/英语六级作文预测.pdf" target="_blank" rel="noreferrer">英语六级作文预测</a></li>
+            <li><a href="resources/【原创】学渣必备四六级十大锦囊写作翻译.pdf" target="_blank" rel="noreferrer">【原创】学渣必备四六级十大锦囊写作翻译</a></li>
+          </ul>
+        </details>
+        <details id="skill-memory">
+          <summary>词汇记忆法</summary>
+          <p>按主题分类背词，结合例句理解词义，每日复习旧词并新增高频短语。</p>
+          <p>推荐资料：</p>
+          <ul class="resource-links">
+            <li><a href="resources/英语四六级翻译高端词库.pdf" target="_blank" rel="noreferrer">英语四六级翻译高端词库</a></li>
+            <li><a href="resources/英语四六级翻译7大技巧.docx" target="_blank" rel="noreferrer">英语四六级翻译7大技巧</a></li>
+            <li><a href="resources/2025年12月六级翻译预测.pdf" target="_blank" rel="noreferrer">2025年12月六级翻译预测</a></li>
+            <li><a href="resources/deepseek预测.pdf" target="_blank" rel="noreferrer">deepseek预测</a></li>
+          </ul>
+        </details>
+      </div>
+    </section>
+
+    <section id="tips" class="section tips-section">
+      <div class="section-title">
+        <div>
+          <p class="section-label">进阶建议</p>
+          <h2>更高效的练习方式</h2>
+        </div>
+      </div>
+      <div class="tips-grid">
+        <article class="tip-card">
+          <h4>1. 先做真题再看解析</h4>
+          <p>独立完成整套试卷，再对照解析复盘错题，避免“看答案就会”却依旧失分。</p>
+        </article>
+        <article class="tip-card">
+          <h4>2. 听力分层训练</h4>
+          <p>第一遍抓主旨，第二遍补细节，第三遍跟读复述，逐步提高理解与输出能力。</p>
+        </article>
+        <article class="tip-card">
+          <h4>3. 记录高频易错点</h4>
+          <p>把高频词汇、长难句、写作亮点集中到笔记区，形成专属资料库。</p>
+        </article>
+        <article class="tip-card">
+          <h4>4. 保持稳定节奏</h4>
+          <p>建议每天至少完成一套题或一个专项练习，打卡区勾选任务维持连续性。</p>
+        </article>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <p>如遇浏览器限制本地文件访问，可使用 Edge、Firefox 或本地静态服务器重新打开本页面。</p>
+    </footer>
+  </div>
+
+  <script src="library-data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

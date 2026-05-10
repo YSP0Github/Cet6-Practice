@@ -1,0 +1,57 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>六级真题练习系统 · 套题预览</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="preview-shell">
+  <div class="preview-header">
+    <div class="preview-headline">
+      <div class="preview-title-block">
+        <h1 id="previewTitle">真题原文与解析</h1>
+      </div>
+      <p id="previewSubtitle" class="preview-subtitle">左侧显示真题 PDF，右侧显示解析 PDF，附带本套听力资源。</p>
+    </div>
+    <div class="preview-toolbar">
+      <div id="previewShortcuts" class="preview-shortcuts" aria-label="同年度快捷跳转"></div>
+      <div class="preview-actions">
+        <a class="button button-secondary" href="index.html">返回首页</a>
+        <button class="button button-primary" id="previewRefresh">刷新页面</button>
+      </div>
+    </div>
+  </div>
+
+  <main class="preview-grid">
+    <section class="preview-column preview-main">
+      <div class="preview-panel preview-panel-large preview-panel-has-action">
+        <div class="preview-panel-header">
+          <div class="preview-panel-label">真题原文</div>
+          <div id="previewAudioBar" class="preview-audio-bar" aria-label="本套听力资源">
+            <audio id="previewAudioPlayer" controls preload="none"></audio>
+          </div>
+        </div>
+        <button type="button" class="preview-panel-action" id="toggleParseBtn" aria-pressed="false">隐藏解析</button>
+        <iframe id="mainPdf" title="真题原文预览"></iframe>
+      </div>
+    </section>
+    <div class="preview-resizer" id="previewResizer" role="separator" aria-label="调整原文与解析宽度" aria-orientation="vertical" tabindex="0"></div>
+    <section class="preview-column preview-parse">
+      <div class="preview-panel preview-panel-large">
+        <div class="preview-panel-header">
+          <div class="preview-panel-label">解析</div>
+        </div>
+        <iframe id="parsePdf" title="解析预览"></iframe>
+      </div>
+    </section>
+  </main>
+
+  <footer class="preview-footer">
+    <p id="previewNote">如果浏览器无法直接加载本地 PDF，请使用 Edge、Firefox 或将 PDF 另存后再打开。</p>
+  </footer>
+
+  <script src="library-data.js"></script>
+  <script src="preview.js"></script>
+</body>
+</html>
