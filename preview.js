@@ -299,7 +299,8 @@ function loadPreview() {
     return;
   }
   const groupTitle = formatShortcutGroupTitle(entry);
-  document.getElementById('previewTitle').textContent = `${groupTitle}CET6真题·${setLabel || '听力资源'}`;
+  const levelLabel = (entry.level || 'cet6') === 'cet4' ? 'CET4' : 'CET6';
+  document.getElementById('previewTitle').textContent = `${groupTitle}${levelLabel}真题·${setLabel || '听力资源'}`;
   document.getElementById('previewSubtitle').textContent = '左侧是真题原文，右侧展示解析，附带本套听力资源。';
   const mobile = isMobile();
   if (mobile) {

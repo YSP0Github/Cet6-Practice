@@ -173,17 +173,18 @@ def build_raw_entries() -> List[dict]:
     return entries
 
 
-def build_asset_entries() -> List[dict]:
-    pdf_dir = PDF_DIR
+def build_asset_entries(pdf_dir: Path, audio_dir: Path, level: str = 'cet6') -> List[dict]:
     if not pdf_dir.exists():
         return []
+    label = 'CET4' if level == 'cet4' else 'CET6'
     entry_map: Dict[Tuple[int, int], dict] = {}
 
     def ensure_entry(year: int, month: int) -> dict:
         key = (year, month)
         if key not in entry_map:
-            title = f'{year}年{str(month).zfill(2)}月CET6真题+解析+听力'
+            title = f'{year}年{str(month).zfill(2)}月{label}真题+解析+听力'
             entry_map[key] = {
+                'level': level,
                 'year': str(year),
                 'month': month,
                 'title': title,
@@ -211,7 +212,6 @@ def build_asset_entries() -> List[dict]:
             'set': set_index
         })
 
-    audio_dir = AUDIO_DIR
     if audio_dir.exists():
         for audio_path in sorted(audio_dir.iterdir()):
             if not audio_path.is_file():
@@ -248,12 +248,13 @@ def build_asset_entries() -> List[dict]:
     return entries
 
 
-def entry_key(entry: dict) -> Tuple[str, int, str]:
+def entry_key(entry: dict) -> Tuple[str, str, int, str]:
+    level = entry.get('level', 'cet6')
     year = entry.get('year')
     month = entry.get('month')
     if isinstance(month, int) and month > 0:
-        return (year, month, '')
-    return (year, 0, entry.get('title', year))
+        return (level, year, month, '')
+    return (level, year, 0, entry.get('title', year))
 
 
 def merge_entries(primary: List[dict], secondary: List[dict]) -> List[dict]:
@@ -302,8 +303,12 @@ def write_outputs(entries: List[dict]) -> None:
 
 
 def main() -> None:
-    entries = build_asset_entries()
-    write_outputs(entries)
+    entries_cet6 = build_asset_entries(PDF_DIR, AUDIO_DIR, level='cet6')
+    cet4_pdf = PDF_DIR / 'cet4'
+    cet4_audio = AUDIO_DIR / 'cet4'
+    entries_cet4 = build_asset_entries(cet4_pdf, cet4_audio, level='cet4') if cet4_pdf.exists() else []
+    all_entries = merge_entries(entries_cet6, entries_cet4)
+    write_outputs(all_entries)
 
 
 if __name__ == '__main__':

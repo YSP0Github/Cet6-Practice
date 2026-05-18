@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>大学英语六级真题练习系统</title>
-  <meta name="description" content="2015-2025年大学英语六级真题练习系统，包含真题PDF、解析、听力音频和错题笔记，一站式备考工具。" />
+  <title>大学英语四六级真题练习系统</title>
+  <meta name="description" content="2015-2025年大学英语四六级真题练习系统，包含真题PDF、解析、听力音频和错题笔记，一站式备考工具。" />
   <meta name="theme-color" content="#071421" />
   <link rel="icon" type="image/svg+xml" href="favicon.svg" />
   <link rel="stylesheet" href="styles.css" />
@@ -14,8 +14,8 @@
     <header class="site-header">
       <div>
         <p class="eyebrow">真题练习 · 本地资源</p>
-        <h1>大学英语六级真题练习系统</h1>
-        <p>把真题、听力、解析与错题记录集中到一个界面，减少切换次数，保持沉浸式复习节奏。</p>
+        <h1 id="siteTitle">大学英语六级真题练习系统</h1>
+        <p id="siteDesc">把真题、听力、解析与错题记录集中到一个界面，减少切换次数，保持沉浸式复习节奏。</p>
       </div>
       <div class="header-actions">
         <a class="button button-primary" href="#latest">开始练习</a>
@@ -29,6 +29,11 @@
       <a class="nav-link" href="#skilltips">常用技巧</a>
       <a class="nav-link" href="#tips">进阶建议</a>
     </nav>
+
+    <div class="level-switcher" id="levelSwitcher" role="tablist" aria-label="四六级切换">
+      <button type="button" class="level-tab active" data-level="cet6" role="tab" aria-selected="true">六级 CET-6</button>
+      <button type="button" class="level-tab" data-level="cet4" role="tab" aria-selected="false">四级 CET-4</button>
+    </div>
 
     <section class="feature-panels">
       <article class="feature-card">

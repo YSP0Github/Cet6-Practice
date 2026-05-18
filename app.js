@@ -1,5 +1,17 @@
 const libraryData = Array.isArray(window.libraryData) ? window.libraryData : [];
 
+const VALID_LEVELS = ['cet6', 'cet4'];
+let currentLevel = localStorage.getItem('cetLevel') || 'cet6';
+if (!VALID_LEVELS.includes(currentLevel)) currentLevel = 'cet6';
+
+function getFilteredData() {
+  return libraryData.filter(entry => (entry.level || 'cet6') === currentLevel);
+}
+
+function storageKey(suffix) {
+  return `${currentLevel}_${suffix}`;
+}
+
 function stripExtension(name) {
   return name.replace(/\.(pdf|mp3)$/i, '').trim();
 }
@@ -109,8 +121,11 @@ function getEntrySummary(entry) {
 }
 
 function getLatestEntries(limit = 3) {
-  return libraryData
-    .map((entry, entryIndex) => ({ entry, entryIndex }))
+  return getFilteredData()
+    .map(entry => {
+      const originalIndex = libraryData.indexOf(entry);
+      return { entry, entryIndex: originalIndex };
+    })
     .sort((a, b) => {
       const diff = getEntrySortValue(b.entry) - getEntrySortValue(a.entry);
       if (diff !== 0) {
@@ -148,8 +163,8 @@ const clearNotesButton = document.getElementById('clearNotes');
 const planItems = document.getElementById('planItems');
 const toggleImmersiveButton = document.getElementById('toggleImmersive');
 
-let favorites = JSON.parse(localStorage.getItem('cet6Favorites') || '{}');
-let recentResources = JSON.parse(localStorage.getItem('cet6Recent') || '[]');
+let favorites = JSON.parse(localStorage.getItem(storageKey('Favorites')) || '{}');
+let recentResources = JSON.parse(localStorage.getItem(storageKey('Recent')) || '[]');
 let currentFilter = '';
 
 function encodePath(path) {
@@ -157,11 +172,11 @@ function encodePath(path) {
 }
 
 function saveFavorites() {
-  try { localStorage.setItem('cet6Favorites', JSON.stringify(favorites)); } catch (e) { /* quota exceeded */ }
+  try { localStorage.setItem(storageKey('Favorites'), JSON.stringify(favorites)); } catch (e) { /* quota exceeded */ }
 }
 
 function saveRecent() {
-  try { localStorage.setItem('cet6Recent', JSON.stringify(recentResources)); } catch (e) { /* quota exceeded */ }
+  try { localStorage.setItem(storageKey('Recent'), JSON.stringify(recentResources)); } catch (e) { /* quota exceeded */ }
 }
 
 function logRecent(resource) {
@@ -271,7 +286,8 @@ function buildResourceCard(entry, entryIndex) {
 function renderLibrary(filter = '') {
   currentFilter = filter;
   const normalized = filter.trim().toLowerCase();
-  const filtered = libraryData.filter(entry => {
+  const levelData = getFilteredData();
+  const filtered = levelData.filter(entry => {
     if (!normalized) return true;
     if (entry.title.toLowerCase().includes(normalized) || entry.year.includes(normalized) || entry.tags.some(tag => tag.toLowerCase().includes(normalized))) {
       return true;
@@ -322,7 +338,7 @@ function openPreviewPage(entryIndex, resourceIndex) {
 
 function renderAudio() {
   audioList.innerHTML = '';
-  const audioResources = libraryData.flatMap(entry => entry.resources.filter(resource => resource.type === '听力'));
+  const audioResources = getFilteredData().flatMap(entry => entry.resources.filter(resource => resource.type === '听力'));
   audioResources.forEach(resource => {
     const card = document.createElement('article');
     card.className = 'audio-card';
@@ -337,11 +353,11 @@ function renderAudio() {
 }
 
 function loadNotes() {
-  notesArea.value = localStorage.getItem('cet6Notes') || '';
+  notesArea.value = localStorage.getItem(storageKey('Notes')) || '';
 }
 
 function saveNotes() {
-  try { localStorage.setItem('cet6Notes', notesArea.value); } catch (e) { /* quota exceeded */ }
+  try { localStorage.setItem(storageKey('Notes'), notesArea.value); } catch (e) { /* quota exceeded */ }
   saveNotesButton.textContent = '已保存';
   const status = document.getElementById('saveStatus');
   if (status) status.textContent = '笔记已保存';
@@ -380,6 +396,11 @@ function updatePlan(event) {
 }
 
 function setupEventListeners() {
+  document.getElementById('levelSwitcher').addEventListener('click', event => {
+    const tab = event.target.closest('.level-tab');
+    if (tab) switchLevel(tab.dataset.level);
+  });
+
   let debounceTimer;
   searchInput.addEventListener('input', () => {
     clearTimeout(debounceTimer);
@@ -421,7 +442,47 @@ function setupEventListeners() {
   });
 }
 
+function renderLevelSwitcher() {
+  document.querySelectorAll('.level-tab').forEach(tab => {
+    const isActive = tab.dataset.level === currentLevel;
+    tab.classList.toggle('active', isActive);
+    tab.setAttribute('aria-selected', isActive ? 'true' : 'false');
+  });
+}
+
+function updateHeaderTitle() {
+  const h1 = document.getElementById('siteTitle');
+  const desc = document.getElementById('siteDesc');
+  if (h1) {
+    h1.textContent = currentLevel === 'cet4'
+      ? '大学英语四级真题练习系统'
+      : '大学英语六级真题练习系统';
+  }
+  if (desc) {
+    desc.textContent = currentLevel === 'cet4'
+      ? '把四级真题、听力、解析与错题笔记集中到一个界面，减少切换次数，保持沉浸式复习节奏。'
+      : '把真题、听力、解析与错题笔记集中到一个界面，减少切换次数，保持沉浸式复习节奏。';
+  }
+}
+
+function switchLevel(level) {
+  if (!VALID_LEVELS.includes(level) || level === currentLevel) return;
+  currentLevel = level;
+  localStorage.setItem('cetLevel', level);
+  favorites = JSON.parse(localStorage.getItem(storageKey('Favorites')) || '{}');
+  recentResources = JSON.parse(localStorage.getItem(storageKey('Recent')) || '[]');
+  renderFeatured();
+  renderLibrary(searchInput.value);
+  renderRecent();
+  renderAudio();
+  loadNotes();
+  renderLevelSwitcher();
+  updateHeaderTitle();
+}
+
 function init() {
+  renderLevelSwitcher();
+  updateHeaderTitle();
   renderFeatured();
   renderLibrary();
   renderRecent();

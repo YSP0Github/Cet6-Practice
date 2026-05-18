@@ -1,5 +1,6 @@
 window.libraryData = [
   {
+    "level": "cet6",
     "year": "2025",
     "month": 12,
     "title": "2025年12月CET6真题+解析+听力",
@@ -53,6 +54,61 @@ window.libraryData = [
     ]
   },
   {
+    "level": "cet4",
+    "year": "2025",
+    "month": 12,
+    "title": "2025年12月CET4真题+解析+听力",
+    "rawTitle": "2025年12月CET4真题+解析+听力",
+    "tags": [
+      "真题",
+      "解析",
+      "听力"
+    ],
+    "resources": [
+      {
+        "name": "202512_1.pdf",
+        "type": "真题",
+        "path": "pdf/cet4/202512_1.pdf"
+      },
+      {
+        "name": "202512_2.pdf",
+        "type": "真题",
+        "path": "pdf/cet4/202512_2.pdf"
+      },
+      {
+        "name": "202512_3.pdf",
+        "type": "真题",
+        "path": "pdf/cet4/202512_3.pdf"
+      },
+      {
+        "name": "202512_1_解析.pdf",
+        "type": "解析",
+        "path": "pdf/cet4/202512_1_解析.pdf"
+      },
+      {
+        "name": "202512_2_解析.pdf",
+        "type": "解析",
+        "path": "pdf/cet4/202512_2_解析.pdf"
+      },
+      {
+        "name": "202512_3_解析.pdf",
+        "type": "解析",
+        "path": "pdf/cet4/202512_3_解析.pdf"
+      },
+      {
+        "name": "202512_1.mp3",
+        "type": "听力",
+        "path": "audio/cet4/202512_1.mp3"
+      },
+      {
+        "name": "202512_2.mp3",
+        "type": "听力",
+        "path": "audio/cet4/202512_2.mp3"
+      }
+    ]
+  },
+  {
+    "level": "cet6",
     "year": "2025",
     "month": 6,
     "title": "2025年06月CET6真题+解析+听力",
@@ -106,6 +162,61 @@ window.libraryData = [
     ]
   },
   {
+    "level": "cet4",
+    "year": "2025",
+    "month": 6,
+    "title": "2025年06月CET4真题+解析+听力",
+    "rawTitle": "2025年06月CET4真题+解析+听力",
+    "tags": [
+      "真题",
+      "解析",
+      "听力"
+    ],
+    "resources": [
+      {
+        "name": "202506_1.pdf",
+        "type": "真题",
+        "path": "pdf/cet4/202506_1.pdf"
+      },
+      {
+        "name": "202506_2.pdf",
+        "type": "真题",
+        "path": "pdf/cet4/202506_2.pdf"
+      },
+      {
+        "name": "202506_3.pdf",
+        "type": "真题",
+        "path": "pdf/cet4/202506_3.pdf"
+      },
+      {
+        "name": "202506_1_解析.pdf",
+        "type": "解析",
+        "path": "pdf/cet4/202506_1_解析.pdf"
+      },
+      {
+        "name": "202506_2_解析.pdf",
+        "type": "解析",
+        "path": "pdf/cet4/202506_2_解析.pdf"
+      },
+      {
+        "name": "202506_3_解析.pdf",
+        "type": "解析",
+        "path": "pdf/cet4/202506_3_解析.pdf"
+      },
+      {
+        "name": "202506_1.mp3",
+        "type": "听力",
+        "path": "audio/cet4/202506_1.mp3"
+      },
+      {
+        "name": "202506_2.mp3",
+        "type": "听力",
+        "path": "audio/cet4/202506_2.mp3"
+      }
+    ]
+  },
+  {
+    "level": "cet6",
     "year": "2024",
     "month": 12,
     "title": "2024年12月CET6真题+解析+听力",
@@ -159,6 +270,45 @@ window.libraryData = [
     ]
   },
   {
+    "level": "cet4",
+    "year": "2024",
+    "month": 12,
+    "title": "2024年12月CET4真题+解析+听力",
+    "rawTitle": "2024年12月CET4真题+解析+听力",
+    "tags": [
+      "解析",
+      "听力"
+    ],
+    "resources": [
+      {
+        "name": "202412_1_解析.pdf",
+        "type": "解析",
+        "path": "pdf/cet4/202412_1_解析.pdf"
+      },
+      {
+        "name": "202412_2_解析.pdf",
+        "type": "解析",
+        "path": "pdf/cet4/202412_2_解析.pdf"
+      },
+      {
+        "name": "202412_3_解析.pdf",
+        "type": "解析",
+        "path": "pdf/cet4/202412_3_解析.pdf"
+      },
+      {
+        "name": "202412_1.mp3",
+        "type": "听力",
+        "path": "audio/cet4/202412_1.mp3"
+      },
+      {
+        "name": "202412_2.mp3",
+        "type": "听力",
+        "path": "audio/cet4/202412_2.mp3"
+      }
+    ]
+  },
+  {
+    "level": "cet6",
     "year": "2024",
     "month": 6,
     "title": "2024年06月CET6真题+解析+听力",
@@ -212,6 +362,61 @@ window.libraryData = [
     ]
   },
   {
+    "level": "cet4",
+    "year": "2024",
+    "month": 6,
+    "title": "2024年06月CET4真题+解析+听力",
+    "rawTitle": "2024年06月CET4真题+解析+听力",
+    "tags": [
+      "真题",
+      "解析",
+      "听力"
+    ],
+    "resources": [
+      {
+        "name": "202406_1.pdf",
+        "type": "真题",
+        "path": "pdf/cet4/202406_1.pdf"
+      },
+      {
+        "name": "202406_2.pdf",
+        "type": "真题",
+        "path": "pdf/cet4/202406_2.pdf"
+      },
+      {
+        "name": "202406_3.pdf",
+        "type": "真题",
+        "path": "pdf/cet4/202406_3.pdf"
+      },
+      {
+        "name": "202406_1_解析.pdf",
+        "type": "解析",
+        "path": "pdf/cet4/202406_1_解析.pdf"
+      },
+      {
+        "name": "202406_2_解析.pdf",
+        "type": "解析",
+        "path": "pdf/cet4/202406_2_解析.pdf"
+      },
+      {
+        "name": "202406_3_解析.pdf",
+        "type": "解析",
+        "path": "pdf/cet4/202406_3_解析.pdf"
+      },
+      {
+        "name": "202406_1.mp3",
+        "type": "听力",
+        "path": "audio/cet4/202406_1.mp3"
+      },
+      {
+        "name": "202406_2.mp3",
+        "type": "听力",
+        "path": "audio/cet4/202406_2.mp3"
+      }
+    ]
+  },
+  {
+    "level": "cet6",
     "year": "2023",
     "month": 12,
     "title": "2023年12月CET6真题+解析+听力",
@@ -265,6 +470,61 @@ window.libraryData = [
     ]
   },
   {
+    "level": "cet4",
+    "year": "2023",
+    "month": 12,
+    "title": "2023年12月CET4真题+解析+听力",
+    "rawTitle": "2023年12月CET4真题+解析+听力",
+    "tags": [
+      "真题",
+      "解析",
+      "听力"
+    ],
+    "resources": [
+      {
+        "name": "202312_1.pdf",
+        "type": "真题",
+        "path": "pdf/cet4/202312_1.pdf"
+      },
+      {
+        "name": "202312_2.pdf",
+        "type": "真题",
+        "path": "pdf/cet4/202312_2.pdf"
+      },
+      {
+        "name": "202312_3.pdf",
+        "type": "真题",
+        "path": "pdf/cet4/202312_3.pdf"
+      },
+      {
+        "name": "202312_1_解析.pdf",
+        "type": "解析",
+        "path": "pdf/cet4/202312_1_解析.pdf"
+      },
+      {
+        "name": "202312_2_解析.pdf",
+        "type": "解析",
+        "path": "pdf/cet4/202312_2_解析.pdf"
+      },
+      {
+        "name": "202312_3_解析.pdf",
+        "type": "解析",
+        "path": "pdf/cet4/202312_3_解析.pdf"
+      },
+      {
+        "name": "202312_1.mp3",
+        "type": "听力",
+        "path": "audio/cet4/202312_1.mp3"
+      },
+      {
+        "name": "202312_2.mp3",
+        "type": "听力",
+        "path": "audio/cet4/202312_2.mp3"
+      }
+    ]
+  },
+  {
+    "level": "cet6",
     "year": "2023",
     "month": 6,
     "title": "2023年06月CET6真题+解析+听力",
@@ -318,6 +578,61 @@ window.libraryData = [
     ]
   },
   {
+    "level": "cet4",
+    "year": "2023",
+    "month": 6,
+    "title": "2023年06月CET4真题+解析+听力",
+    "rawTitle": "2023年06月CET4真题+解析+听力",
+    "tags": [
+      "真题",
+      "解析",
+      "听力"
+    ],
+    "resources": [
+      {
+        "name": "202306_1.pdf",
+        "type": "真题",
+        "path": "pdf/cet4/202306_1.pdf"
+      },
+      {
+        "name": "202306_2.pdf",
+        "type": "真题",
+        "path": "pdf/cet4/202306_2.pdf"
+      },
+      {
+        "name": "202306_3.pdf",
+        "type": "真题",
+        "path": "pdf/cet4/202306_3.pdf"
+      },
+      {
+        "name": "202306_1_解析.pdf",
+        "type": "解析",
+        "path": "pdf/cet4/202306_1_解析.pdf"
+      },
+      {
+        "name": "202306_2_解析.pdf",
+        "type": "解析",
+        "path": "pdf/cet4/202306_2_解析.pdf"
+      },
+      {
+        "name": "202306_3_解析.pdf",
+        "type": "解析",
+        "path": "pdf/cet4/202306_3_解析.pdf"
+      },
+      {
+        "name": "202306_1.mp3",
+        "type": "听力",
+        "path": "audio/cet4/202306_1.mp3"
+      },
+      {
+        "name": "202306_2.mp3",
+        "type": "听力",
+        "path": "audio/cet4/202306_2.mp3"
+      }
+    ]
+  },
+  {
+    "level": "cet6",
     "year": "2023",
     "month": 3,
     "title": "2023年03月CET6真题+解析+听力",
@@ -366,6 +681,36 @@ window.libraryData = [
     ]
   },
   {
+    "level": "cet4",
+    "year": "2023",
+    "month": 3,
+    "title": "2023年03月CET4真题+解析+听力",
+    "rawTitle": "2023年03月CET4真题+解析+听力",
+    "tags": [
+      "真题",
+      "解析",
+      "听力"
+    ],
+    "resources": [
+      {
+        "name": "202303_1.pdf",
+        "type": "真题",
+        "path": "pdf/cet4/202303_1.pdf"
+      },
+      {
+        "name": "202303_1_解析.pdf",
+        "type": "解析",
+        "path": "pdf/cet4/202303_1_解析.pdf"
+      },
+      {
+        "name": "202303_1.mp3",
+        "type": "听力",
+        "path": "audio/cet4/202303_1.mp3"
+      }
+    ]
+  },
+  {
+    "level": "cet6",
     "year": "2022",
     "month": 12,
     "title": "2022年12月CET6真题+解析+听力",
@@ -419,6 +764,7 @@ window.libraryData = [
     ]
   },
   {
+    "level": "cet6",
     "year": "2022",
     "month": 9,
     "title": "2022年09月CET6真题+解析+听力",
@@ -467,6 +813,7 @@ window.libraryData = [
     ]
   },
   {
+    "level": "cet6",
     "year": "2022",
     "month": 6,
     "title": "2022年06月CET6真题+解析+听力",
@@ -515,6 +862,56 @@ window.libraryData = [
     ]
   },
   {
+    "level": "cet4",
+    "year": "2022",
+    "month": 6,
+    "title": "2022年06月CET4真题+解析+听力",
+    "rawTitle": "2022年06月CET4真题+解析+听力",
+    "tags": [
+      "真题",
+      "解析",
+      "听力"
+    ],
+    "resources": [
+      {
+        "name": "202206_1.pdf",
+        "type": "真题",
+        "path": "pdf/cet4/202206_1.pdf"
+      },
+      {
+        "name": "202206_2.pdf",
+        "type": "真题",
+        "path": "pdf/cet4/202206_2.pdf"
+      },
+      {
+        "name": "202206_3.pdf",
+        "type": "真题",
+        "path": "pdf/cet4/202206_3.pdf"
+      },
+      {
+        "name": "202206_1_解析.pdf",
+        "type": "解析",
+        "path": "pdf/cet4/202206_1_解析.pdf"
+      },
+      {
+        "name": "202206_2_解析.pdf",
+        "type": "解析",
+        "path": "pdf/cet4/202206_2_解析.pdf"
+      },
+      {
+        "name": "202206_3_解析.pdf",
+        "type": "解析",
+        "path": "pdf/cet4/202206_3_解析.pdf"
+      },
+      {
+        "name": "202206_1.mp3",
+        "type": "听力",
+        "path": "audio/cet4/202206_1.mp3"
+      }
+    ]
+  },
+  {
+    "level": "cet6",
     "year": "2021",
     "month": 12,
     "title": "2021年12月CET6真题+解析+听力",
@@ -568,6 +965,61 @@ window.libraryData = [
     ]
   },
   {
+    "level": "cet4",
+    "year": "2021",
+    "month": 12,
+    "title": "2021年12月CET4真题+解析+听力",
+    "rawTitle": "2021年12月CET4真题+解析+听力",
+    "tags": [
+      "真题",
+      "解析",
+      "听力"
+    ],
+    "resources": [
+      {
+        "name": "202112_1.pdf",
+        "type": "真题",
+        "path": "pdf/cet4/202112_1.pdf"
+      },
+      {
+        "name": "202112_2.pdf",
+        "type": "真题",
+        "path": "pdf/cet4/202112_2.pdf"
+      },
+      {
+        "name": "202112_3.pdf",
+        "type": "真题",
+        "path": "pdf/cet4/202112_3.pdf"
+      },
+      {
+        "name": "202112_1_解析.pdf",
+        "type": "解析",
+        "path": "pdf/cet4/202112_1_解析.pdf"
+      },
+      {
+        "name": "202112_2_解析.pdf",
+        "type": "解析",
+        "path": "pdf/cet4/202112_2_解析.pdf"
+      },
+      {
+        "name": "202112_3_解析.pdf",
+        "type": "解析",
+        "path": "pdf/cet4/202112_3_解析.pdf"
+      },
+      {
+        "name": "202112_1.mp3",
+        "type": "听力",
+        "path": "audio/cet4/202112_1.mp3"
+      },
+      {
+        "name": "202112_2.mp3",
+        "type": "听力",
+        "path": "audio/cet4/202112_2.mp3"
+      }
+    ]
+  },
+  {
+    "level": "cet6",
     "year": "2021",
     "month": 6,
     "title": "2021年06月CET6真题+解析+听力",
@@ -621,6 +1073,61 @@ window.libraryData = [
     ]
   },
   {
+    "level": "cet4",
+    "year": "2021",
+    "month": 6,
+    "title": "2021年06月CET4真题+解析+听力",
+    "rawTitle": "2021年06月CET4真题+解析+听力",
+    "tags": [
+      "真题",
+      "解析",
+      "听力"
+    ],
+    "resources": [
+      {
+        "name": "202106_1.pdf",
+        "type": "真题",
+        "path": "pdf/cet4/202106_1.pdf"
+      },
+      {
+        "name": "202106_2.pdf",
+        "type": "真题",
+        "path": "pdf/cet4/202106_2.pdf"
+      },
+      {
+        "name": "202106_3.pdf",
+        "type": "真题",
+        "path": "pdf/cet4/202106_3.pdf"
+      },
+      {
+        "name": "202106_1_解析.pdf",
+        "type": "解析",
+        "path": "pdf/cet4/202106_1_解析.pdf"
+      },
+      {
+        "name": "202106_2_解析.pdf",
+        "type": "解析",
+        "path": "pdf/cet4/202106_2_解析.pdf"
+      },
+      {
+        "name": "202106_3_解析.pdf",
+        "type": "解析",
+        "path": "pdf/cet4/202106_3_解析.pdf"
+      },
+      {
+        "name": "202106_1.mp3",
+        "type": "听力",
+        "path": "audio/cet4/202106_1.mp3"
+      },
+      {
+        "name": "202106_2.mp3",
+        "type": "听力",
+        "path": "audio/cet4/202106_2.mp3"
+      }
+    ]
+  },
+  {
+    "level": "cet6",
     "year": "2020",
     "month": 12,
     "title": "2020年12月CET6真题+解析+听力",
@@ -674,6 +1181,7 @@ window.libraryData = [
     ]
   },
   {
+    "level": "cet6",
     "year": "2020",
     "month": 9,
     "title": "2020年09月CET6真题+解析+听力",
@@ -712,6 +1220,7 @@ window.libraryData = [
     ]
   },
   {
+    "level": "cet6",
     "year": "2020",
     "month": 7,
     "title": "2020年07月CET6真题+解析+听力",
@@ -740,6 +1249,7 @@ window.libraryData = [
     ]
   },
   {
+    "level": "cet6",
     "year": "2019",
     "month": 12,
     "title": "2019年12月CET6真题+解析+听力",
@@ -793,6 +1303,7 @@ window.libraryData = [
     ]
   },
   {
+    "level": "cet6",
     "year": "2019",
     "month": 6,
     "title": "2019年06月CET6真题+解析+听力",
@@ -846,6 +1357,7 @@ window.libraryData = [
     ]
   },
   {
+    "level": "cet6",
     "year": "2018",
     "month": 12,
     "title": "2018年12月CET6真题+解析+听力",
@@ -899,6 +1411,7 @@ window.libraryData = [
     ]
   },
   {
+    "level": "cet6",
     "year": "2018",
     "month": 6,
     "title": "2018年06月CET6真题+解析+听力",
@@ -952,6 +1465,7 @@ window.libraryData = [
     ]
   },
   {
+    "level": "cet6",
     "year": "2017",
     "month": 12,
     "title": "2017年12月CET6真题+解析+听力",
@@ -1005,6 +1519,7 @@ window.libraryData = [
     ]
   },
   {
+    "level": "cet6",
     "year": "2017",
     "month": 6,
     "title": "2017年06月CET6真题+解析+听力",
@@ -1058,6 +1573,7 @@ window.libraryData = [
     ]
   },
   {
+    "level": "cet6",
     "year": "2016",
     "month": 12,
     "title": "2016年12月CET6真题+解析+听力",
@@ -1111,6 +1627,7 @@ window.libraryData = [
     ]
   },
   {
+    "level": "cet6",
     "year": "2016",
     "month": 6,
     "title": "2016年06月CET6真题+解析+听力",
@@ -1164,6 +1681,7 @@ window.libraryData = [
     ]
   },
   {
+    "level": "cet6",
     "year": "2015",
     "month": 12,
     "title": "2015年12月CET6真题+解析+听力",
@@ -1222,6 +1740,7 @@ window.libraryData = [
     ]
   },
   {
+    "level": "cet6",
     "year": "2015",
     "month": 6,
     "title": "2015年06月CET6真题+解析+听力",
