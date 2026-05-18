@@ -276,10 +276,26 @@ window.libraryData = [
     "title": "2024年12月CET4真题+解析+听力",
     "rawTitle": "2024年12月CET4真题+解析+听力",
     "tags": [
+      "真题",
       "解析",
       "听力"
     ],
     "resources": [
+      {
+        "name": "202412_1.pdf",
+        "type": "真题",
+        "path": "pdf/cet4/202412_1.pdf"
+      },
+      {
+        "name": "202412_2.pdf",
+        "type": "真题",
+        "path": "pdf/cet4/202412_2.pdf"
+      },
+      {
+        "name": "202412_3.pdf",
+        "type": "真题",
+        "path": "pdf/cet4/202412_3.pdf"
+      },
       {
         "name": "202412_1_解析.pdf",
         "type": "解析",
