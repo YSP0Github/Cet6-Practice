@@ -73,6 +73,8 @@ let resizerElement = null;
 let splitPercent = DEFAULT_SPLIT;
 let activePointerId = null;
 let notesManager = null;
+let pendingParsePath = null;
+let parsePdfLoaded = false;
 
 function showMessage(message) {
   const title = document.getElementById('previewTitle');
@@ -94,7 +96,7 @@ function showMessage(message) {
 }
 
 function isMobile() {
-  return /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) || window.innerWidth < 768;
+  return /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) || window.innerWidth < 1024;
 }
 
 function initPdfJsWorker() {
@@ -191,6 +193,10 @@ function initMobileTabs() {
     const targetMap = { audio: 'mobileTabAudio', exam: 'mobileTabExam', parse: 'mobileTabParse' };
     const target = document.getElementById(targetMap[targetId]);
     if (target) target.style.display = '';
+    if (targetId === 'parse' && !parsePdfLoaded && pendingParsePath) {
+      parsePdfLoaded = true;
+      renderPdfToCanvas('mobileParseCanvas', pendingParsePath);
+    }
   });
 }
 
@@ -296,6 +302,9 @@ function loadPreview() {
     return;
   }
   const setLabel = getSetLabel(selected.name);
+  // Set exam context for notes association
+  const examId = NotesManager.generateExamId(entry.year, entry.month, entryLevel, setLabel);
+  notesManager.setCurrentExam(examId);
   const questionResource = selected.type === '真题' ? selected : getPdfResource(entry, setLabel, '真题');
   const parseResource = selected.type === '解析' ? selected : getPdfResource(entry, setLabel, '解析');
   if (!questionResource) {
@@ -313,7 +322,8 @@ function loadPreview() {
     initPdfJsWorker();
     renderPdfToCanvas('mobileExamCanvas', questionResource.path);
     if (parseResource) {
-      renderPdfToCanvas('mobileParseCanvas', parseResource.path);
+      pendingParsePath = wrapPath(parseResource.path);
+      parsePdfLoaded = false;
     } else {
       document.getElementById('mobileTabParse').innerHTML = '<p class="empty-state" style="padding:40px 20px;text-align:center;">本套暂无解析资源</p>';
     }
@@ -338,9 +348,10 @@ function loadPreview() {
   if (parseColumn) {
     parseColumn.classList.remove('no-parse');
   }
+  pendingParsePath = parseResource ? wrapPath(parseResource.path) : null;
+  parsePdfLoaded = false;
   if (parseResource && parsePanel) {
     parsePanel.style.display = '';
-    document.getElementById('parsePdf').src = wrapPath(parseResource.path);
   } else if (parsePanel && parseColumn) {
     parsePanel.style.display = 'none';
     parseColumn.classList.add('no-parse');
@@ -433,6 +444,12 @@ function initSplitResizer() {
   });
 }
 
+function loadParsePdf() {
+  if (parsePdfLoaded || !pendingParsePath) return;
+  parsePdfLoaded = true;
+  document.getElementById('parsePdf').src = pendingParsePath;
+}
+
 function initParseToggle() {
   parseToggleButton = document.getElementById('toggleParseBtn');
   if (!parseToggleButton) {
@@ -445,6 +462,7 @@ function initParseToggle() {
     const hidden = document.body.classList.toggle('preview-parse-hidden');
     try { localStorage.setItem(PARSE_VISIBILITY_KEY, hidden ? '1' : '0'); } catch (e) { /* quota exceeded */ }
     updateParseToggleLabel(hidden);
+    if (!hidden) loadParsePdf();
   });
 }
 
@@ -489,6 +507,7 @@ function syncParseToggleState(hasParse) {
   try { storedHidden = localStorage.getItem(PARSE_VISIBILITY_KEY) === '1'; } catch (e) { /* private browsing */ }
   document.body.classList.toggle('preview-parse-hidden', storedHidden);
   updateParseToggleLabel(storedHidden);
+  if (!storedHidden) loadParsePdf();
 }
 
 // ── Notes sidebar ─────────────────────────────────────────
@@ -518,6 +537,13 @@ function renderPreviewNotes() {
   if (!notesManager) return;
   var area = document.getElementById('previewNotesArea');
   if (area) area.value = notesManager.getQuickNote();
+  // Show exam context
+  var examTag = document.getElementById('sidebarExamTag');
+  var examId = notesManager.getCurrentExam();
+  if (examTag) {
+    examTag.textContent = examId ? '当前真题：' + examId.toUpperCase() : '';
+    examTag.style.display = examId ? '' : 'none';
+  }
   renderPreviewEntries();
 }
 
@@ -525,22 +551,34 @@ function renderPreviewEntries() {
   var list = document.getElementById('previewNotesEntries');
   if (!list || !notesManager) return;
 
-  var entries = notesManager.getEntries().slice();
-  entries.sort(function (a, b) {
+  var examId = notesManager.getCurrentExam();
+  var allEntries = notesManager.getEntries().slice();
+  // Filter: show entries for this exam first, then others
+  var examEntries = allEntries.filter(function (e) { return e.examId === examId; });
+  var otherEntries = allEntries.filter(function (e) { return e.examId && e.examId !== examId; });
+  var noTagEntries = allEntries.filter(function (e) { return !e.examId; });
+
+  var sorted = examEntries.concat(otherEntries).concat(noTagEntries);
+  sorted.sort(function (a, b) {
     if (a.pinned !== b.pinned) return a.pinned ? -1 : 1;
     return b.updatedAt - a.updatedAt;
   });
-  var recent = entries.slice(0, 5);
+  var recent = sorted;
 
   if (recent.length === 0) {
-    list.innerHTML = '<div class="notes-empty">暂无笔记</div>';
+    list.innerHTML = '<div class="notes-empty">暂无笔记，在下方记录吧</div>';
     return;
   }
 
   list.innerHTML = recent.map(function (entry) {
-    return '<div class="note-entry-card' + (entry.pinned ? ' pinned' : '') + '">' +
+    var examTag = entry.examId
+      ? '<span class="note-exam-tag">' + entry.examId + '</span>'
+      : '';
+    var highlight = entry.examId === examId ? ' current-exam' : '';
+    return '<div class="note-entry-card' + (entry.pinned ? ' pinned' : '') + highlight + '">' +
       '<div class="note-entry-meta">' +
         '<span class="note-entry-category cat-' + entry.category + '">' + entry.category + '</span>' +
+        examTag +
         '<span class="note-entry-time">' + NotesManager.formatTime(entry.updatedAt) + '</span>' +
       '</div>' +
       '<p class="note-entry-text">' + escapePreviewHtml(entry.text) + '</p>' +
@@ -554,6 +592,7 @@ function initNotesSidebar() {
   var overlay = document.getElementById('notesSidebarOverlay');
   var saveBtn = document.getElementById('previewSaveNote');
   var exportBtn = document.getElementById('previewExportBtn');
+  var addBtn = document.getElementById('sidebarAddEntry');
 
   if (toggleBtn) {
     toggleBtn.addEventListener('click', function () {
@@ -580,6 +619,19 @@ function initNotesSidebar() {
     });
   }
 
+  if (addBtn) {
+    addBtn.addEventListener('click', function () {
+      if (!notesManager) return;
+      var textArea = document.getElementById('sidebarNewEntryText');
+      var catSelect = document.getElementById('sidebarNewEntryCategory');
+      var text = textArea.value.trim();
+      if (!text) return;
+      notesManager.addEntry(text, catSelect.value, []);
+      textArea.value = '';
+      renderPreviewEntries();
+    });
+  }
+
   if (exportBtn) {
     exportBtn.addEventListener('click', function () {
       if (notesManager) notesManager.exportToFile();
@@ -592,5 +644,6 @@ window.addEventListener('DOMContentLoaded', () => {
   initSplitResizer();
   initParseToggle();
   initNotesSidebar();
+  NotesManager.initEmojiBars();
   loadPreview();
 });

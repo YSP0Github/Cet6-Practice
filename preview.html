@@ -20,6 +20,7 @@
     <div class="preview-toolbar">
       <div id="previewShortcuts" class="preview-shortcuts" aria-label="同年度快捷跳转"></div>
       <div class="preview-actions">
+        <button class="button button-secondary" id="toggleNotesSidebar">📝 笔记</button>
         <a class="button button-secondary" href="index.html">返回首页</a>
         <button class="button button-primary" id="previewRefresh">刷新页面</button>
       </div>
@@ -50,6 +51,63 @@
     </section>
   </main>
 
+  <div id="notesSidebarOverlay" class="notes-sidebar-overlay"></div>
+  <aside id="notesSidebar" class="notes-sidebar" aria-label="错题笔记">
+    <div class="notes-sidebar-header">
+      <div>
+        <h3>📝 错题笔记</h3>
+        <span class="notes-sidebar-exam" id="sidebarExamTag"></span>
+      </div>
+      <button type="button" class="notes-sidebar-close" id="closeNotesSidebar" aria-label="关闭笔记面板">×</button>
+    </div>
+    <div class="notes-sidebar-add">
+      <textarea id="sidebarNewEntryText" placeholder="记录当前真题的错题要点..." rows="2"></textarea>
+      <div class="emoji-bar" data-target="sidebarNewEntryText">
+        <button type="button" class="emoji-btn" data-emoji="😊">😊</button>
+        <button type="button" class="emoji-btn" data-emoji="😢">😢</button>
+        <button type="button" class="emoji-btn" data-emoji="😤">😤</button>
+        <button type="button" class="emoji-btn" data-emoji="🤯">🤯</button>
+        <button type="button" class="emoji-btn" data-emoji="😴">😴</button>
+        <button type="button" class="emoji-btn" data-emoji="💪">💪</button>
+        <button type="button" class="emoji-btn" data-emoji="🔥">🔥</button>
+        <button type="button" class="emoji-btn" data-emoji="💯">💯</button>
+        <button type="button" class="emoji-btn" data-emoji="🧠">🧠</button>
+        <button type="button" class="emoji-btn" data-emoji="🤔">🤔</button>
+        <button type="button" class="emoji-btn" data-emoji="😅">😅</button>
+        <button type="button" class="emoji-btn" data-emoji="🎉">🎉</button>
+        <button type="button" class="emoji-btn" data-emoji="☕">☕</button>
+        <button type="button" class="emoji-btn" data-emoji="👍">👍</button>
+        <button type="button" class="emoji-btn" data-emoji="⭐">⭐</button>
+        <button type="button" class="emoji-btn" data-emoji="❤️">❤️</button>
+      </div>
+      <div class="notes-sidebar-add-actions">
+        <select id="sidebarNewEntryCategory" aria-label="选择分类">
+          <option value="综合">综合</option>
+          <option value="听力">听力</option>
+          <option value="阅读">阅读</option>
+          <option value="写作">写作</option>
+          <option value="翻译">翻译</option>
+          <option value="词汇">词汇</option>
+        </select>
+        <button class="button button-primary button-xsmall" id="sidebarAddEntry">添加</button>
+      </div>
+    </div>
+    <div class="notes-sidebar-quick">
+      <details>
+        <summary class="notes-sidebar-quick-toggle">自由笔记</summary>
+        <textarea id="previewNotesArea" placeholder="临时记录..." rows="3"></textarea>
+        <div class="notes-sidebar-quick-actions">
+          <button class="button button-primary button-xsmall" id="previewSaveNote">保存</button>
+        </div>
+      </details>
+    </div>
+    <div class="notes-sidebar-entries" id="previewNotesEntries"></div>
+    <div class="notes-sidebar-footer">
+      <button class="button button-secondary button-xsmall" id="previewExportBtn">📤 导出</button>
+      <a class="button button-secondary button-xsmall" href="index.html#practice">管理笔记</a>
+    </div>
+  </aside>
+
   <div id="mobileTabs" class="mobile-tabs" style="display:none;">
     <div class="mobile-tab-bar">
       <button type="button" class="mobile-tab active" data-tab="audio">听力</button>
@@ -74,12 +132,14 @@
     </div>
   </div>
 
-  <footer class="preview-footer">
+  <!-- <footer class="preview-footer">
     <p id="previewNote">如果浏览器无法直接加载本地 PDF，请使用 Edge、Firefox 或将 PDF 另存后再打开。</p>
-  </footer>
+    <p class="footer-disclaimer">本站所有真题、解析及听力资源均来自互联网，版权归原作者及出版方所有。本站仅用于个人学习与交流，不进行任何商业用途，如有侵权请联系我们删除。</p>
+  </footer> -->
 
   <script src="library-data.js"></script>
   <script src="https://cdn.bootcdn.net/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script src="notes-manager.js"></script>
   <script src="preview.js"></script>
 </body>
 </html>

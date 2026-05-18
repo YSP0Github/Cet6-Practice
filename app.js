@@ -146,12 +146,6 @@ function getPreviewResourceIndexes(entry) {
   return indexes;
 }
 
-const plans = [
-  { id: 'plan-1', label: '完成一套真题练习' },
-  { id: 'plan-2', label: '听力至少听两遍' },
-  { id: 'plan-3', label: '记录一个错题点' }
-];
-
 const featuredCards = document.getElementById('featuredCards');
 const resourceLibrary = document.getElementById('resourceLibrary');
 const searchInput = document.getElementById('searchInput');
@@ -166,6 +160,24 @@ const toggleImmersiveButton = document.getElementById('toggleImmersive');
 let favorites = JSON.parse(localStorage.getItem(storageKey('Favorites')) || '{}');
 let recentResources = JSON.parse(localStorage.getItem(storageKey('Recent')) || '[]');
 let currentFilter = '';
+let notesManager = null;
+let currentCategoryFilter = 'all';
+let currentSearchQuery = '';
+
+function showToast(message) {
+  var existing = document.querySelector('.toast-notification');
+  if (existing) existing.remove();
+  var toast = document.createElement('div');
+  toast.className = 'toast-notification';
+  toast.textContent = message;
+  document.body.appendChild(toast);
+  requestAnimationFrame(function () { toast.classList.add('visible'); });
+  var duration = message.length > 40 ? 6000 : 3000;
+  setTimeout(function () {
+    toast.classList.remove('visible');
+    setTimeout(function () { toast.remove(); }, 300);
+  }, duration);
+}
 
 function encodePath(path) {
   return path.split('/').map(encodeURIComponent).join('/').replace(/%3A/g, ':').replace(/%2F/g, '/');
@@ -353,46 +365,218 @@ function renderAudio() {
 }
 
 function loadNotes() {
-  notesArea.value = localStorage.getItem(storageKey('Notes')) || '';
+  if (!notesManager) return;
+  notesArea.value = notesManager.getQuickNote();
+  renderEntries();
 }
 
 function saveNotes() {
-  try { localStorage.setItem(storageKey('Notes'), notesArea.value); } catch (e) { /* quota exceeded */ }
+  if (!notesManager) return;
+  notesManager.saveQuickNote(notesArea.value);
   saveNotesButton.textContent = '已保存';
   const status = document.getElementById('saveStatus');
   if (status) status.textContent = '笔记已保存';
   setTimeout(() => {
-    saveNotesButton.textContent = '保存笔记';
+    saveNotesButton.textContent = '保存';
     if (status) status.textContent = '';
   }, 1200);
 }
 
 function clearNotes() {
-  if (confirm('确定要清空笔记吗？')) {
+  if (confirm('确定要清空快速笔记吗？')) {
     notesArea.value = '';
-    localStorage.removeItem('cet6Notes');
+    notesManager.clearQuickNote();
   }
+}
+
+function renderEntries() {
+  const list = document.getElementById('notesEntriesList');
+  if (!list || !notesManager) return;
+
+  let entries = notesManager.searchEntries(currentSearchQuery, currentCategoryFilter);
+
+  // Sort: pinned first, then by updatedAt desc
+  entries.sort(function (a, b) {
+    if (a.pinned !== b.pinned) return a.pinned ? -1 : 1;
+    return b.updatedAt - a.updatedAt;
+  });
+
+  if (entries.length === 0) {
+    list.innerHTML = '<div class="notes-empty">' +
+      (currentSearchQuery || currentCategoryFilter !== 'all' ? '没有找到匹配的笔记' : '还没有笔记，添加一条试试吧') +
+      '</div>';
+    return;
+  }
+
+  list.innerHTML = entries.map(function (entry) {
+    var examTag = entry.examId
+      ? '<span class="note-exam-tag">' + entry.examId + '</span>'
+      : '';
+    var tagsHtml = entry.tags.length
+      ? '<div class="note-entry-tags">' + entry.tags.map(function (t) { return '<span class="note-tag">' + t + '</span>'; }).join('') + '</div>'
+      : '';
+    return '<div class="note-entry-card' + (entry.pinned ? ' pinned' : '') + '" data-id="' + entry.id + '">' +
+      '<div class="note-entry-meta">' +
+        '<span class="note-entry-category cat-' + entry.category + '">' + entry.category + '</span>' +
+        examTag +
+        '<span class="note-entry-time">' + NotesManager.formatTime(entry.updatedAt) + '</span>' +
+        '<button class="note-entry-pin" data-action="pin" title="' + (entry.pinned ? '取消置顶' : '置顶') + '">' + (entry.pinned ? '📌' : '📍') + '</button>' +
+        '<button class="note-entry-delete" data-action="delete" title="删除">🗑</button>' +
+      '</div>' +
+      '<p class="note-entry-text">' + escapeHtml(entry.text) + '</p>' +
+      tagsHtml +
+    '</div>';
+  }).join('');
+}
+
+function escapeHtml(text) {
+  var div = document.createElement('div');
+  div.appendChild(document.createTextNode(text));
+  return div.innerHTML;
+}
+
+function updateStorageDisplay() {
+  if (!notesManager) return;
+  var info = notesManager.getStorageInfo();
+  var display = document.getElementById('storageLocationDisplay');
+  var hint = document.getElementById('storageHint');
+  var resetBtn = document.getElementById('resetStorageBtn');
+  var chooseBtn = document.getElementById('chooseFolderBtn');
+
+  if (info.hasFolder) {
+    if (display) {
+      display.textContent = info.folderName;
+      display.title = '浏览器安全限制，无法获取完整路径';
+      display.classList.add('custom-folder');
+    }
+    if (hint) hint.textContent = '笔记会自动保存到此文件夹。';
+    if (resetBtn) resetBtn.style.display = '';
+    if (chooseBtn) chooseBtn.textContent = '更换文件夹...';
+  } else {
+    if (display) {
+      display.textContent = info.supported ? '浏览器本地存储' : '浏览器本地存储（当前浏览器不支持文件夹选择）';
+      display.classList.remove('custom-folder');
+    }
+    if (hint) hint.textContent = '数据保存在浏览器 localStorage 中，清除浏览器数据会丢失笔记' + (info.supported ? '。选择文件夹后可自动同步到本地文件。' : '。建议使用 Edge 或 Chrome 浏览器获得文件夹同步功能。');
+    if (resetBtn) resetBtn.style.display = 'none';
+    if (chooseBtn) chooseBtn.textContent = '选择文件夹...';
+  }
+}
+
+function addEntry() {
+  var textArea = document.getElementById('newEntryText');
+  var catSelect = document.getElementById('newEntryCategory');
+  var tagsInput = document.getElementById('newEntryTags');
+  var text = textArea.value.trim();
+  if (!text) return;
+
+  var tags = tagsInput.value.split(/[,，]/).map(function (t) { return t.trim(); }).filter(Boolean);
+  notesManager.addEntry(text, catSelect.value, tags);
+
+  textArea.value = '';
+  tagsInput.value = '';
+  currentSearchQuery = '';
+  currentCategoryFilter = 'all';
+  var searchEl = document.getElementById('notesSearch');
+  if (searchEl) searchEl.value = '';
+  document.querySelectorAll('#categoryFilter .category-chip').forEach(function (c) {
+    c.classList.toggle('active', c.dataset.cat === 'all');
+  });
+  renderEntries();
 }
 
 function renderPlans() {
+  if (!notesManager) return;
+  var today = notesManager.getTodayCheckins();
+  var streak = notesManager.getStreak();
+  var history = notesManager.getHistory(7);
+  var stats = notesManager.getCompletionStats();
+
+  // Date display
+  var planDate = document.getElementById('planDate');
+  if (planDate) {
+    var d = new Date();
+    var weekdays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+    planDate.textContent = (d.getMonth() + 1) + '月' + d.getDate() + '日 ' + weekdays[d.getDay()];
+  }
+
+  // Streak display
+  var planStreak = document.getElementById('planStreak');
+  if (planStreak) {
+    if (streak > 0) {
+      planStreak.innerHTML = '🔥 连续打卡 <strong>' + streak + '</strong> 天';
+      planStreak.className = 'plan-streak active';
+    } else {
+      planStreak.innerHTML = '今天还没有完成哦，加油！';
+      planStreak.className = 'plan-streak';
+    }
+  }
+
+  // Task list
   planItems.innerHTML = '';
-  plans.forEach(plan => {
-    const li = document.createElement('li');
-    const checked = localStorage.getItem(plan.id) === 'true';
-    li.innerHTML = `
-      <label>
-        <input type="checkbox" data-id="${plan.id}" ${checked ? 'checked' : ''} /> ${plan.label}
-      </label>
-    `;
+  today.tasks.forEach(function (task) {
+    var li = document.createElement('li');
+    li.className = 'plan-task-item' + (task.checked ? ' done' : '');
+    li.innerHTML =
+      '<label class="plan-task-label">' +
+      '<input type="checkbox" data-id="' + task.id + '"' + (task.checked ? ' checked' : '') + ' />' +
+      '<span class="plan-task-text">' + escapeHtml(task.label) + '</span>' +
+      '<button type="button" class="plan-task-remove" data-id="' + task.id + '" title="删除任务">×</button>' +
+      '</label>';
     planItems.appendChild(li);
   });
+
+  // History (last 7 days)
+  var planHistory = document.getElementById('planHistory');
+  if (planHistory) {
+    var histHtml = '<div class="plan-history-title">近 7 天</div><div class="plan-history-dots">';
+    history.slice().reverse().forEach(function (day) {
+      var cls = 'plan-dot';
+      if (day.total > 0 && day.allDone) cls += ' done';
+      else if (day.total > 0) cls += ' partial';
+      histHtml += '<div class="' + cls + '" title="' + day.date + '：' + day.done + '/' + day.total + '">';
+      histHtml += '<span class="plan-dot-label">' + day.label + '</span>';
+      histHtml += '<span class="plan-dot-weekday">' + day.weekday + '</span>';
+      histHtml += '</div>';
+    });
+    histHtml += '</div>';
+    planHistory.innerHTML = histHtml;
+  }
+
+  // Stats
+  var planStats = document.getElementById('planStats');
+  if (planStats && stats.totalDays > 0) {
+    planStats.innerHTML = '累计打卡 <strong>' + stats.totalDays + '</strong> 天，完成 <strong>' + stats.completedDays + '</strong> 天，完成率 <strong>' + stats.rate + '%</strong>';
+  } else if (planStats) {
+    planStats.innerHTML = '';
+  }
 }
 
 function updatePlan(event) {
-  const target = event.target;
+  var target = event.target;
+  if (!notesManager) return;
+
+  // Handle checkbox toggle
   if (target.matches('input[type="checkbox"]')) {
-    localStorage.setItem(target.dataset.id, target.checked);
+    notesManager.setTaskCheck(target.dataset.id, target.checked);
+    renderPlans();
   }
+
+  // Handle task removal
+  if (target.matches('.plan-task-remove')) {
+    notesManager.removeDailyTask(target.dataset.id);
+    renderPlans();
+  }
+}
+
+function addDailyTask() {
+  var input = document.getElementById('planAddInput');
+  if (!input || !notesManager) return;
+  var label = input.value.trim();
+  if (!label) return;
+  notesManager.addDailyTask(label);
+  input.value = '';
+  renderPlans();
 }
 
 function setupEventListeners() {
@@ -409,6 +593,15 @@ function setupEventListeners() {
   saveNotesButton.addEventListener('click', saveNotes);
   clearNotesButton.addEventListener('click', clearNotes);
   planItems.addEventListener('change', updatePlan);
+  planItems.addEventListener('click', updatePlan);
+  var planAddBtn = document.getElementById('planAddBtn');
+  var planAddInput = document.getElementById('planAddInput');
+  if (planAddBtn) planAddBtn.addEventListener('click', addDailyTask);
+  if (planAddInput) {
+    planAddInput.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') addDailyTask();
+    });
+  }
   toggleImmersiveButton.addEventListener('click', () => {
     const target = getLatestEntries(1)[0];
     if (!target) {
@@ -440,6 +633,132 @@ function setupEventListeners() {
       return;
     }
   });
+
+  // ── Notes: add entry ──
+  const addEntryBtn = document.getElementById('addEntryBtn');
+  if (addEntryBtn) {
+    addEntryBtn.addEventListener('click', addEntry);
+  }
+
+  // ── Notes: entry list actions (pin / delete) ──
+  const entriesList = document.getElementById('notesEntriesList');
+  if (entriesList) {
+    entriesList.addEventListener('click', event => {
+      const btn = event.target.closest('[data-action]');
+      if (!btn || !notesManager) return;
+      const card = btn.closest('.note-entry-card');
+      if (!card) return;
+      const id = card.dataset.id;
+      if (btn.dataset.action === 'delete') {
+        if (confirm('确定删除这条笔记？')) {
+          notesManager.deleteEntry(id);
+          renderEntries();
+        }
+      } else if (btn.dataset.action === 'pin') {
+        notesManager.togglePin(id);
+        renderEntries();
+      }
+    });
+  }
+
+  // ── Notes: search ──
+  const notesSearch = document.getElementById('notesSearch');
+  if (notesSearch) {
+    let searchTimer;
+    notesSearch.addEventListener('input', () => {
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(() => {
+        currentSearchQuery = notesSearch.value;
+        renderEntries();
+      }, 200);
+    });
+  }
+
+  // ── Notes: category filter ──
+  const categoryFilter = document.getElementById('categoryFilter');
+  if (categoryFilter) {
+    categoryFilter.addEventListener('click', event => {
+      const chip = event.target.closest('.category-chip');
+      if (!chip) return;
+      categoryFilter.querySelectorAll('.category-chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      currentCategoryFilter = chip.dataset.cat;
+      renderEntries();
+    });
+  }
+
+  // ── Notes: export / import ──
+  const exportBtn = document.getElementById('exportNotesBtn');
+  if (exportBtn) {
+    exportBtn.addEventListener('click', () => {
+      if (notesManager) notesManager.exportToFile();
+    });
+  }
+  const importBtn = document.getElementById('importNotesBtn');
+  const importFile = document.getElementById('importNotesFile');
+  if (importBtn && importFile) {
+    importBtn.addEventListener('click', () => importFile.click());
+    importFile.addEventListener('change', () => {
+      if (importFile.files.length === 0 || !notesManager) return;
+      notesManager.importFromFile(importFile.files[0]).then(() => {
+        loadNotes();
+        renderPlans();
+        importFile.value = '';
+      }).catch(err => {
+        alert('导入失败：' + err.message);
+        importFile.value = '';
+      });
+    });
+  }
+
+  // ── Data reminder dismiss ──
+  const dismissBtn = document.getElementById('dismissReminder');
+  if (dismissBtn) {
+    dismissBtn.addEventListener('click', () => {
+      localStorage.setItem('hideDataReminder', '1');
+      const reminder = document.getElementById('dataReminder');
+      if (reminder) reminder.hidden = true;
+    });
+  }
+
+  // ── Storage settings: choose folder ──
+  const storageDisplay = document.getElementById('storageLocationDisplay');
+  if (storageDisplay) {
+    storageDisplay.addEventListener('click', () => {
+      if (!notesManager) return;
+      var info = notesManager.getStorageInfo();
+      if (info.hasFolder) {
+        showToast('当前存储文件夹：' + info.folderName);
+      }
+    });
+  }
+  const chooseFolderBtn = document.getElementById('chooseFolderBtn');
+  if (chooseFolderBtn) {
+    chooseFolderBtn.addEventListener('click', () => {
+      if (!notesManager) return;
+      notesManager.chooseFolder().then(function () {
+        var info = notesManager.getStorageInfo();
+        if (info.hasFolder) {
+          showToast('已切换到文件夹：' + info.folderName + '\n笔记将自动保存到此目录。');
+        }
+      }).catch(err => {
+        if (err.name !== 'AbortError') {
+          alert('选择文件夹失败：' + err.message);
+        }
+      });
+    });
+  }
+
+  // ── Storage settings: reset to default ──
+  const resetStorageBtn = document.getElementById('resetStorageBtn');
+  if (resetStorageBtn) {
+    resetStorageBtn.addEventListener('click', () => {
+      if (!notesManager) return;
+      if (confirm('恢复为浏览器本地存储？已保存到文件夹的文件不会被删除。')) {
+        notesManager.resetStorage();
+      }
+    });
+  }
 }
 
 function renderLevelSwitcher() {
@@ -471,16 +790,20 @@ function switchLevel(level) {
   localStorage.setItem('cetLevel', level);
   favorites = JSON.parse(localStorage.getItem(storageKey('Favorites')) || '{}');
   recentResources = JSON.parse(localStorage.getItem(storageKey('Recent')) || '[]');
+  if (notesManager) notesManager.switchLevel(currentLevel);
   renderFeatured();
   renderLibrary(searchInput.value);
   renderRecent();
   renderAudio();
   loadNotes();
+  renderPlans();
   renderLevelSwitcher();
   updateHeaderTitle();
 }
 
 function init() {
+  notesManager = new NotesManager(currentLevel);
+  notesManager._onStorageChange = updateStorageDisplay;
   renderLevelSwitcher();
   updateHeaderTitle();
   renderFeatured();
@@ -490,6 +813,14 @@ function init() {
   loadNotes();
   renderPlans();
   setupEventListeners();
+  updateStorageDisplay();
+  NotesManager.initEmojiBars();
+
+  // Data reminder banner
+  var reminder = document.getElementById('dataReminder');
+  if (reminder && localStorage.getItem('hideDataReminder') !== '1') {
+    reminder.hidden = false;
+  }
 }
 
 init();

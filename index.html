@@ -11,6 +11,12 @@
 </head>
 <body>
   <div class="app-shell">
+    <div id="dataReminder" class="data-reminder" hidden>
+      <span class="data-reminder-icon">💾</span>
+      <p><strong>数据保存提示：</strong>你的笔记和打卡数据仅保存在当前浏览器中，不会自动同步到其他设备或浏览器。建议定期使用「导出备份」保存数据，换设备时通过「导入」恢复。</p>
+      <button type="button" class="data-reminder-close" id="dismissReminder" aria-label="关闭提示">×</button>
+    </div>
+
     <header class="site-header">
       <div>
         <p class="eyebrow">真题练习 · 本地资源</p>
@@ -20,12 +26,14 @@
       <div class="header-actions">
         <a class="button button-primary" href="#latest">开始练习</a>
         <button class="button button-secondary" id="toggleImmersive">沉浸模式</button>
+        <a class="button button-secondary" href="resources/新版大学英语四六级答题卡（推荐打印）.pdf" target="_blank" rel="noopener">🖨️ 答题卡</a>
       </div>
     </header>
 
     <nav class="home-nav-links" aria-label="首页快速导航">
       <a class="nav-link" href="#library">资源库</a>
-      <a class="nav-link" href="#practice">练习工具</a>
+      <a class="nav-link" href="#practice">听力资源</a>
+      <a class="nav-link" href="#notes">错题笔记</a>
       <a class="nav-link" href="#skilltips">常用技巧</a>
       <a class="nav-link" href="#tips">进阶建议</a>
     </nav>
@@ -36,21 +44,21 @@
     </div>
 
     <section class="feature-panels">
-      <article class="feature-card">
+      <a class="feature-card" href="#library">
         <div class="feature-icon" role="img" aria-label="书本">📘</div>
         <h2>结构化资源</h2>
         <p>按年份与套题整理真题、解析、听力，摆脱零散文件夹，一次点击立刻定位。</p>
-      </article>
-      <article class="feature-card">
+      </a>
+      <a class="feature-card" href="#practice">
         <div class="feature-icon" role="img" aria-label="耳机">🎧</div>
         <h2>听力同步</h2>
         <p>内置简洁播放器，支持本地 MP3 直接播放，随套题自动切换到对应音频。</p>
-      </article>
-      <article class="feature-card">
+      </a>
+      <a class="feature-card" href="#notes">
         <div class="feature-icon" role="img" aria-label="笔记">📝</div>
         <h2>错题笔记</h2>
         <p>页面本地保存练习记录，刷新后仍在，适合记录易错点与复习计划。</p>
-      </article>
+      </a>
     </section>
 
     <section id="latest" class="section latest-section">
@@ -89,38 +97,126 @@
       <div class="section-title">
         <div>
           <p class="section-label">练习工具</p>
-          <h2>听力与笔记</h2>
+          <h2>听力资源</h2>
         </div>
       </div>
-      <div class="practice-grid">
-        <div class="panel-card audio-panel">
-          <div class="panel-header">
-            <div>
-              <h3>听力资源</h3>
-              <p>选择套题后，这里自动展示对应听力音频，也可以直接播放本地文件。</p>
-            </div>
+      <div class="panel-card audio-panel">
+        <div class="panel-header">
+          <div>
+            <p>选择套题后，这里自动展示对应听力音频，也可以直接播放本地文件。</p>
           </div>
-          <div id="audioList" class="audio-list"></div>
         </div>
-        <div class="panel-card notes-panel">
-          <div class="notes-header">
-            <div>
-              <h3 id="notesLabel">错题笔记</h3>
-              <p>本地保存你的复习计划与易错点，随时追加或修改。</p>
+        <div id="audioList" class="audio-list"></div>
+      </div>
+    </section>
+
+    <section id="notes" class="section notes-section">
+      <div class="section-title">
+        <div>
+          <p class="section-label">学习记录</p>
+          <h2>错题笔记</h2>
+        </div>
+      </div>
+      <div class="panel-card notes-panel">
+        <div class="notes-header">
+          <div>
+            <p>分类记录易错点，支持搜索与导出备份。</p>
+          </div>
+            <div class="notes-header-actions">
+              <button class="button button-xsmall button-secondary" id="exportNotesBtn" title="导出备份文件">📤 导出</button>
+              <button class="button button-xsmall button-secondary" id="importNotesBtn" title="从文件导入">📥 导入</button>
+              <input type="file" id="importNotesFile" accept=".json" style="display:none;" />
             </div>
           </div>
-          <textarea id="notesArea" aria-labelledby="notesLabel" placeholder="记录你的错题、听力感受或复习计划..."></textarea>
-          <div class="note-actions">
-            <button class="button button-primary button-small" id="saveNotes">保存笔记</button>
-            <button class="button button-secondary button-small" id="clearNotes">清空笔记</button>
-            <span id="saveStatus" class="visually-hidden" aria-live="polite"></span>
+
+          <div class="storage-settings" id="storageSettings">
+            <div class="storage-settings-row">
+              <span class="storage-settings-label">存储位置</span>
+              <span class="storage-settings-value" id="storageLocationDisplay">浏览器本地存储</span>
+            </div>
+            <div class="storage-settings-actions">
+              <button class="button button-xsmall button-secondary" id="chooseFolderBtn">选择文件夹...</button>
+              <button class="button button-xsmall button-secondary" id="resetStorageBtn" style="display:none;">恢复默认</button>
+            </div>
+            <p class="storage-settings-hint" id="storageHint">数据保存在浏览器 localStorage 中，清除浏览器数据会丢失笔记。选择文件夹后可自动同步到本地文件。</p>
           </div>
-          <div class="plan-box">
-            <h4>今日打卡</h4>
+
+          <div class="notes-toolbar">
+            <input type="search" id="notesSearch" placeholder="搜索笔记内容或标签..." aria-label="搜索笔记" class="notes-search-input" />
+            <div class="notes-category-filter" id="categoryFilter">
+              <button type="button" class="category-chip active" data-cat="all">全部</button>
+              <button type="button" class="category-chip" data-cat="听力">听力</button>
+              <button type="button" class="category-chip" data-cat="阅读">阅读</button>
+              <button type="button" class="category-chip" data-cat="写作">写作</button>
+              <button type="button" class="category-chip" data-cat="翻译">翻译</button>
+              <button type="button" class="category-chip" data-cat="词汇">词汇</button>
+              <button type="button" class="category-chip" data-cat="综合">综合</button>
+            </div>
+          </div>
+
+          <div class="note-entry-form" id="noteEntryForm">
+            <textarea id="newEntryText" placeholder="记录一条新错题或易错点..." rows="2" aria-label="新笔记内容"></textarea>
+            <div class="emoji-bar" data-target="newEntryText">
+              <button type="button" class="emoji-btn" data-emoji="😊">😊</button>
+              <button type="button" class="emoji-btn" data-emoji="😢">😢</button>
+              <button type="button" class="emoji-btn" data-emoji="😤">😤</button>
+              <button type="button" class="emoji-btn" data-emoji="🤯">🤯</button>
+              <button type="button" class="emoji-btn" data-emoji="😴">😴</button>
+              <button type="button" class="emoji-btn" data-emoji="💪">💪</button>
+              <button type="button" class="emoji-btn" data-emoji="🔥">🔥</button>
+              <button type="button" class="emoji-btn" data-emoji="💯">💯</button>
+              <button type="button" class="emoji-btn" data-emoji="🧠">🧠</button>
+              <button type="button" class="emoji-btn" data-emoji="🤔">🤔</button>
+              <button type="button" class="emoji-btn" data-emoji="😅">😅</button>
+              <button type="button" class="emoji-btn" data-emoji="🎉">🎉</button>
+              <button type="button" class="emoji-btn" data-emoji="☕">☕</button>
+              <button type="button" class="emoji-btn" data-emoji="👍">👍</button>
+              <button type="button" class="emoji-btn" data-emoji="⭐">⭐</button>
+              <button type="button" class="emoji-btn" data-emoji="❤️">❤️</button>
+            </div>
+            <div class="note-entry-form-actions">
+              <select id="newEntryCategory" aria-label="选择分类">
+                <option value="综合">综合</option>
+                <option value="听力">听力</option>
+                <option value="阅读">阅读</option>
+                <option value="写作">写作</option>
+                <option value="翻译">翻译</option>
+                <option value="词汇">词汇</option>
+              </select>
+              <input type="text" id="newEntryTags" placeholder="标签（逗号分隔）" aria-label="标签" />
+              <button class="button button-primary button-small" id="addEntryBtn">添加笔记</button>
+            </div>
+          </div>
+
+          <div class="notes-entries-list" id="notesEntriesList"></div>
+
+          <details class="quick-note-section">
+            <summary>快速笔记区（自由文本）</summary>
+            <textarea id="notesArea" aria-labelledby="notesLabel" placeholder="自由记录复习计划或临时笔记..."></textarea>
+            <div class="note-actions">
+              <button class="button button-primary button-small" id="saveNotes">保存</button>
+              <button class="button button-secondary button-small" id="clearNotes">清空</button>
+              <span id="saveStatus" class="visually-hidden" aria-live="polite"></span>
+            </div>
+          </details>
+
+          <div class="plan-box" id="planBox">
+            <div class="plan-header">
+              <div class="plan-title-row">
+                <h4>📅 今日打卡</h4>
+                <span class="plan-date" id="planDate"></span>
+              </div>
+              <div class="plan-streak" id="planStreak"></div>
+            </div>
             <ul id="planItems" class="plan-items"></ul>
+            <div class="plan-add-row">
+              <input type="text" id="planAddInput" class="plan-add-input" placeholder="添加自定义任务..." maxlength="30" />
+              <button class="button button-xsmall button-primary" id="planAddBtn">+</button>
+            </div>
+            <div class="plan-history" id="planHistory"></div>
+            <div class="plan-stats" id="planStats"></div>
           </div>
         </div>
-      </div>
     </section>
 
     <section id="skilltips" class="section skilltips-section">
@@ -197,33 +293,52 @@
           <h2>更高效的练习方式</h2>
         </div>
       </div>
-      <div class="tips-grid">
-        <article class="tip-card">
+      <div class=”tips-grid”>
+        <article class=”tip-card”>
           <h4>1. 先做真题再看解析</h4>
-          <p>独立完成整套试卷，再对照解析复盘错题，避免“看答案就会”却依旧失分。</p>
+          <p>独立完成整套试卷，再对照解析复盘错题，避免”看答案就会”却依旧失分。</p>
         </article>
-        <article class="tip-card">
+        <article class=”tip-card”>
           <h4>2. 听力分层训练</h4>
           <p>第一遍抓主旨，第二遍补细节，第三遍跟读复述，逐步提高理解与输出能力。</p>
         </article>
-        <article class="tip-card">
+        <article class=”tip-card”>
           <h4>3. 记录高频易错点</h4>
           <p>把高频词汇、长难句、写作亮点集中到笔记区，形成专属资料库。</p>
         </article>
-        <article class="tip-card">
+        <article class=”tip-card”>
           <h4>4. 保持稳定节奏</h4>
           <p>建议每天至少完成一套题或一个专项练习，打卡区勾选任务维持连续性。</p>
         </article>
       </div>
+      <div class=”answer-sheet-banner”>
+        <div class=”answer-sheet-icon”>🖨️</div>
+        <div class=”answer-sheet-text”>
+          <h4>配套答题卡</h4>
+          <p>推荐下载打印四六级标准答题卡，模拟真实考试环境，提前熟悉填涂节奏。</p>
+        </div>
+        <a class=”button button-primary button-small” href=”resources/新版大学英语四六级答题卡（推荐打印）.pdf” target=”_blank” rel=”noopener”>📥 下载答题卡</a>
+      </div>
     </section>
 
     <footer class="footer">
-      <p>如遇浏览器限制本地文件访问，可使用 Edge、Firefox 或本地静态服务器重新打开本页面。</p>
-      <p style="margin-top:8px;"><a href="https://github.com/YSP0Github/Cet6-Practice" target="_blank" rel="noopener" style="color:var(--accent-2);text-decoration:none;">GitHub 开源地址</a></p>
+      <div class="footer-main">
+        <div class="footer-brand">
+          <h3>大学英语四六级真题练习系统</h3>
+          <p class="footer-version">v1.0 · 本地离线使用</p>
+        </div>
+        <div class="footer-links">
+          <a href="https://github.com/YSP0Github/Cet6-Practice" target="_blank" rel="noopener">GitHub</a>
+          <a href="https://yshome.top" target="_blank" rel="noopener">云凇之家</a>
+        </div>
+      </div>
+      <p class="footer-tip">如遇浏览器限制本地文件访问，可使用 Edge、Firefox 或本地静态服务器重新打开。</p>
+      <p class="footer-disclaimer">本站所有真题、解析及听力资源均来自互联网，版权归原作者及出版方所有。本站仅用于个人学习与交流，不进行任何商业用途，如有侵权请联系我们删除。</p>
     </footer>
   </div>
 
   <script src="library-data.js"></script>
+  <script src="notes-manager.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
