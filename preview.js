@@ -72,6 +72,7 @@ let parseToggleButton = null;
 let resizerElement = null;
 let splitPercent = DEFAULT_SPLIT;
 let activePointerId = null;
+let notesManager = null;
 
 function showMessage(message) {
   const title = document.getElementById('previewTitle');
@@ -225,9 +226,10 @@ function renderYearShortcuts(currentEntryIndex, currentEntry, questionResource) 
     return;
   }
   container.innerHTML = '';
+  const currentLevel = currentEntry.level || 'cet6';
   const sameYearEntries = libraryData
     .map((entry, entryIndex) => ({ entry, entryIndex }))
-    .filter(item => item.entry.year === currentEntry.year);
+    .filter(item => item.entry.year === currentEntry.year && (item.entry.level || 'cet6') === currentLevel);
   let hasContent = false;
   sameYearEntries.forEach(({ entry, entryIndex }) => {
     const mappedResources = entry.resources
@@ -286,6 +288,8 @@ function loadPreview() {
     showMessage('未找到对应年份资源。');
     return;
   }
+  const entryLevel = entry.level || 'cet6';
+  notesManager = new NotesManager(entryLevel);
   const selected = entry.resources[resourceIndex];
   if (!selected) {
     showMessage('未找到对应套题资源。');
@@ -487,9 +491,106 @@ function syncParseToggleState(hasParse) {
   updateParseToggleLabel(storedHidden);
 }
 
+// ── Notes sidebar ─────────────────────────────────────────
+
+function escapePreviewHtml(text) {
+  var div = document.createElement('div');
+  div.appendChild(document.createTextNode(text));
+  return div.innerHTML;
+}
+
+function openNotesSidebar() {
+  var sidebar = document.getElementById('notesSidebar');
+  var overlay = document.getElementById('notesSidebarOverlay');
+  if (sidebar) sidebar.classList.add('open');
+  if (overlay) overlay.classList.add('visible');
+  renderPreviewNotes();
+}
+
+function closeNotesSidebar() {
+  var sidebar = document.getElementById('notesSidebar');
+  var overlay = document.getElementById('notesSidebarOverlay');
+  if (sidebar) sidebar.classList.remove('open');
+  if (overlay) overlay.classList.remove('visible');
+}
+
+function renderPreviewNotes() {
+  if (!notesManager) return;
+  var area = document.getElementById('previewNotesArea');
+  if (area) area.value = notesManager.getQuickNote();
+  renderPreviewEntries();
+}
+
+function renderPreviewEntries() {
+  var list = document.getElementById('previewNotesEntries');
+  if (!list || !notesManager) return;
+
+  var entries = notesManager.getEntries().slice();
+  entries.sort(function (a, b) {
+    if (a.pinned !== b.pinned) return a.pinned ? -1 : 1;
+    return b.updatedAt - a.updatedAt;
+  });
+  var recent = entries.slice(0, 5);
+
+  if (recent.length === 0) {
+    list.innerHTML = '<div class="notes-empty">暂无笔记</div>';
+    return;
+  }
+
+  list.innerHTML = recent.map(function (entry) {
+    return '<div class="note-entry-card' + (entry.pinned ? ' pinned' : '') + '">' +
+      '<div class="note-entry-meta">' +
+        '<span class="note-entry-category cat-' + entry.category + '">' + entry.category + '</span>' +
+        '<span class="note-entry-time">' + NotesManager.formatTime(entry.updatedAt) + '</span>' +
+      '</div>' +
+      '<p class="note-entry-text">' + escapePreviewHtml(entry.text) + '</p>' +
+    '</div>';
+  }).join('');
+}
+
+function initNotesSidebar() {
+  var toggleBtn = document.getElementById('toggleNotesSidebar');
+  var closeBtn = document.getElementById('closeNotesSidebar');
+  var overlay = document.getElementById('notesSidebarOverlay');
+  var saveBtn = document.getElementById('previewSaveNote');
+  var exportBtn = document.getElementById('previewExportBtn');
+
+  if (toggleBtn) {
+    toggleBtn.addEventListener('click', function () {
+      var sidebar = document.getElementById('notesSidebar');
+      if (sidebar && sidebar.classList.contains('open')) {
+        closeNotesSidebar();
+      } else {
+        openNotesSidebar();
+      }
+    });
+  }
+  if (closeBtn) closeBtn.addEventListener('click', closeNotesSidebar);
+  if (overlay) overlay.addEventListener('click', closeNotesSidebar);
+
+  if (saveBtn) {
+    saveBtn.addEventListener('click', function () {
+      if (!notesManager) return;
+      var area = document.getElementById('previewNotesArea');
+      if (area) {
+        notesManager.saveQuickNote(area.value);
+        saveBtn.textContent = '已保存';
+        setTimeout(function () { saveBtn.textContent = '保存'; }, 1200);
+      }
+    });
+  }
+
+  if (exportBtn) {
+    exportBtn.addEventListener('click', function () {
+      if (notesManager) notesManager.exportToFile();
+    });
+  }
+}
+
 window.addEventListener('DOMContentLoaded', () => {
   document.getElementById('previewRefresh').addEventListener('click', () => window.location.reload());
   initSplitResizer();
   initParseToggle();
+  initNotesSidebar();
   loadPreview();
 });
