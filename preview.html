@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>四六级真题练习系统 · 套题预览</title>
+  <title>四六级真题练习系统 · 套题练习</title>
   <meta name="description" content="六级真题原文与解析左右分屏预览，支持听力播放与快捷跳转。" />
   <meta name="theme-color" content="#071421" />
   <link rel="icon" type="image/svg+xml" href="favicon.svg" />
@@ -20,7 +20,8 @@
     <div class="preview-toolbar">
       <div id="previewShortcuts" class="preview-shortcuts" aria-label="同年度快捷跳转"></div>
       <div class="preview-actions">
-        <button class="button button-secondary" id="toggleNotesSidebar">📝 笔记</button>
+        <button class="button button-secondary" id="toggleAnswerCard">📋 <span class="btn-text">答题卡</span></button>
+        <button class="button button-secondary" id="toggleNotesSidebar">📝 <span class="btn-text">笔记</span></button>
         <a class="button button-secondary" href="index.html">返回首页</a>
         <button class="button button-primary" id="previewRefresh">刷新页面</button>
       </div>
@@ -108,6 +109,29 @@
     </div>
   </aside>
 
+  <div id="answerCardPanel" class="answer-card-panel" style="display:none;">
+    <div class="answer-card-header" id="answerCardHeader">
+      <div class="answer-card-title-block">
+        <h3 class="answer-card-title">📋 答题卡</h3>
+        <span class="answer-card-exam-tag" id="answerCardExamTag"></span>
+      </div>
+      <div class="answer-card-header-actions">
+        <span class="answer-card-timer" id="answerCardTimer">00:00</span>
+        <button type="button" class="answer-card-close" id="closeAnswerCard" aria-label="关闭答题卡">×</button>
+      </div>
+    </div>
+    <div class="answer-card-progress" id="answerCardProgress">
+      <div class="answer-card-progress-bar"><div class="answer-card-progress-fill" id="answerCardProgressFill"></div></div>
+      <span class="answer-card-progress-text" id="answerCardProgressText">0/55 已作答</span>
+    </div>
+    <div class="answer-card-body" id="answerCardBody"></div>
+    <div class="answer-card-footer">
+      <button class="button button-secondary button-xsmall" id="answerCardReset">清空重做</button>
+      <button class="button button-primary button-xsmall" id="answerCardSubmit">交卷批改</button>
+    </div>
+    <div class="answer-card-resize-handle" id="answerCardResizeHandle"></div>
+  </div>
+
   <div id="mobileTabs" class="mobile-tabs" style="display:none;">
     <div class="mobile-tab-bar">
       <button type="button" class="mobile-tab active" data-tab="audio">听力</button>
@@ -141,5 +165,7 @@
   <script src="https://cdn.bootcdn.net/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <script src="notes-manager.js"></script>
   <script src="preview.js"></script>
+  <script src="answer-key.js"></script>
+  <script src="answer-card.js"></script>
 </body>
 </html>

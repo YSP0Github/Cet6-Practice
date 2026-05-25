@@ -646,4 +646,7 @@ window.addEventListener('DOMContentLoaded', () => {
   initNotesSidebar();
   NotesManager.initEmojiBars();
   loadPreview();
+  if (typeof AnswerCard !== 'undefined') {
+    AnswerCard.init();
+  }
 });
