@@ -1455,6 +1455,25 @@ body.preview-no-parse .preview-grid {
   font-size: 0.82rem;
   opacity: 0.7;
 }
+.footer-stats {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px;
+  margin: 0 0 10px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.06);
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
+.footer-stats strong {
+  color: var(--accent-2);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
 .footer-disclaimer {
   margin: 0;
   font-size: 0.76rem;
@@ -2997,4 +3016,3 @@ select option {
     gap: 0;
   }
 }
-
